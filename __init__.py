@@ -2,8 +2,14 @@ import requests
 import json
 from Crypto.Hash import keccak
 
+"""
+ Package to use Python3 to access data and metadata on Pubpub v6 and v7
+"""
+
+__version__ = "0.1"
+
 class Pubshelper:
-    def __init__(self, community_url="https://unjournal.pubpub.org", community_id="d28e8e57-7f59-486b-9395-b548158a27d6", email='revwr@gmail.com',password = '8paswortt' ):
+    def __init__(self, community_url="https://unjournal.pubpub.org", community_id="d28e8e57-7f59-486b-9395-b548158a27d6", email='contact@unjournal.org', password = 'paswort' ):
         self.community_url = community_url
         self.community_id = community_id
         self.cookieJar = None
@@ -12,7 +18,11 @@ class Pubshelper:
         self.password = password
 
 
-
+    ###
+    # 
+        #
+        # todo: check for 401 errors or other error codes    
+    ###
     def login(self):
         k = keccak.new(digest_bits=512)
         k.update(self.password.encode())
