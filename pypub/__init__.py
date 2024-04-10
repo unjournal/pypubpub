@@ -1,12 +1,13 @@
+
+""" Package to use Python3 to access data and metadata on Pubpub v6 and v7 """
+
+__version__ = "0.1"
+
 import requests
 import json
 from Crypto.Hash import keccak
 
-"""
- Package to use Python3 to access data and metadata on Pubpub v6 and v7
-"""
 
-__version__ = "0.1"
 
 class Pubshelper:
     """Helper Class for Pubpub v6 access """
