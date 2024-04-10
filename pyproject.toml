@@ -8,6 +8,14 @@ authors = [{name = "Nesim S", email = "contact@unjournal.org"}]
 license = {file = "LICENSE"}
 classifiers = ["License :: OSI Approved :: MIT License"]
 dynamic = ["version", "description"]
+dependencies = [
+	"requests >=2.6",
+	"pycryptodome >=3.20",		
+]
 
 [project.urls]
 Home = "https://unjournal.pubpub.org/"
+
+
+
+
