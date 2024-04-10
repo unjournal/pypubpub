@@ -9,6 +9,7 @@ from Crypto.Hash import keccak
 __version__ = "0.1"
 
 class Pubshelper:
+    """Helper Class for Pubpub v6 access """
     def __init__(self, community_url="https://unjournal.pubpub.org", community_id="d28e8e57-7f59-486b-9395-b548158a27d6", email='contact@unjournal.org', password = 'paswort' ):
         self.community_url = community_url
         self.community_id = community_id
