@@ -13,6 +13,16 @@ dependencies = [
 	"pycryptodome >=3.20",		
 ]
 
+[project.optional-dependencies]
+dev = [
+    "pytest >=3.0",
+]
+
+[tool.pytest.ini_options]
+addopts = [
+    "--import-mode=importlib",
+]
+
 [project.urls]
 Home = "https://unjournal.pubpub.org/"
 
