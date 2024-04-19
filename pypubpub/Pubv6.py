@@ -68,7 +68,6 @@ class Pubshelper_v6:
         response =  self.authed_request('logout', 'GET')
         self.cookieJar = None
         self.logged_in = False
-        print('Succesfully logged out')
 
     def getPubByIdorSlug(self, slugOrId, attributes=None, include=None ):
 
