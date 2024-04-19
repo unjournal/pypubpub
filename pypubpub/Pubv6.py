@@ -58,9 +58,7 @@ class Pubshelper_v6:
             )
 
             if response.status_code < 200 or response.status_code >= 300:
-                raise Exception(
-                    f'Request failed with status {response.status_code}: {response.text}'
-                )
+                response.raise_for_status()
 
             return response.json()
 
