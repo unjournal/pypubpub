@@ -1,9 +1,14 @@
 # from sys import ps1
 """Pubpub API helper for v6 """
 
+import re
+from time import sleep
+from typing import TypedDict
 import requests
 import json
-from Crypto.Hash import keccak #need hashed passwords for API
+from Crypto.Hash import keccak
+
+from pypubpub.utils import retry #need hashed passwords for API
 
 class Pubshelper_v6:
     def __init__(self, community_url="https://unjournal.pubpub.org", community_id="d28e8e57-7f59-486b-9395-b548158a27d6", email='contact@unjournal.org',password = 'pasw0rt' ):
@@ -267,5 +272,110 @@ class Pubshelper_v6:
 
     def getPub(self, pub_id):
         return self.get_many_pubs(pub_ids=[pub_id])
+
+
+
+
+class Migratehelper_v6:
+    def __init__(self, pubhelperv6) -> None:
+        self.pubhelperv6=pubhelperv6
+        pass
+
+    @classmethod
+    def factory(cls, pub_helper):
+        if(not pub_helper):
+            pub_helper = Pubshelper_v6()
+        return cls(pub_helper)
+            # pub_helper.logged_in
+
+    @staticmethod
+    def isMaybePubId(t:str):
+        t2 = re.sub(r"\s+|-","", t )
+        if(not len(t2)==32):
+            return False
+        t3 = re.sub(r"[a-f0-9]", "", t2.casefold())
+        if(len(t3)==0):
+            return True
+        else:
+            return False
+
+    def resolve_external_original(
+            self, o_id:str, 
+            parent_url:str, 
+            blank_pub="blank_pub"
+            ):
+        """
+            check if external paper has an existing Pubpub id
+            if not create one by making a link from a Pubpub pub to the external resource
+        """
+        if self.isMaybePubId(o_id):
+            pubgotten = self.pubhelperv6.getPubByIdorSlug(o_id)
+            if pubgotten:
+                return o_id
+        return
+        # blank_pub_dict = retry()(self.pubhelperv6.getPubByIdorSlug)(blank_pub)
+        # if(not blank_pub_dict):
+        #     blank_pub_dict = self.pubhelperv6.create_pub(slug=blank_pub, title="blank pub", description="blank pub")
+        #     sleep(2)
+        # self.pubhelperv6.connect_pub_to_external(blank_pub_dict['id'], title="external original", url=parent_url, publicationDate="2024-04-01T00:00:00.000Z", description="external original")
+        # blank_pub_dict
+
+
+    class createPubsReturn(TypedDict):
+        createdPubIds: list
+        createdPubs: list
+        createPubErrors: list
+
+    def createPubs( 
+            self,
+            evals=[
+                {"slug":"eval01","tite":"titel", "description":"description"},
+                {"slug":"eval02","tite":"title2", "description":"description2"}
+            ])->createPubsReturn:
+        # first create pubs
+        createdPubIds = []
+        createdPubs = []
+        createPubErrors = []
+        for e in evals:
+            # pubArgs = self.buildArgs(**e, isValidPubId =isValidPubId, origPaperPubID=origPaperPubID)
+            pubNew = self.pubhelperv6.create_pub(**e)
+            if pubNew:
+                createdPubIds.append(pubNew["id"])
+                createdPubs.append(pubNew)
+            else:
+                createPubErrors.append({"data": e.copy(), "error":"Unable to create pub"})
+        return {"createdPubIds":createdPubIds, "createdPubs":createdPubs, "createPubErrors":createPubErrors}
+
+    @staticmethod
+    def buildArgs():
+        pass
+
+    def validateOrigPaperPubId(self):
+        pass
+
+    def prep_create_related_pubs(
+        self,
+        original_paper_pub_id=None,
+        g ={},
+        original_paper_object={
+            "doi":None,
+            "url": None,
+            "publicationDate": None,
+            "title": None,
+            "description": None,
+            "contributors": [],
+        },
+        original_paper="pubid or external url or doi",
+        evals=[
+            {"slug":"eval01","tite":"titel", "description":"description" , "author":"anonymous"},
+            {"slug":"eval02","tite":"title2", "description":"description2" , "author": "pubIDXX"}
+        ]
+    ):
+        #link
+        # original_paper_res = resolve_original(original_paper)
+        isValidPubId = False
+        if self.isMaybePubId(original_paper):
+            (isValidPubId, origPaperPubID ) = self.validateOrigPaperPubId(original_paper)
+
 
 

@@ -7,7 +7,7 @@ import requests
 import json
 from Crypto.Hash import keccak
 
-from .Pubv6 import Pubshelper_v6
+from .Pubv6 import Pubshelper_v6, Migratehelper_v6
 
 
 # class Pubshelper:
