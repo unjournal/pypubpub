@@ -8,6 +8,9 @@ from pypubpub import Pubshelper_v6, Migratehelper_v6
 from pypubpub.utils import generate_random_number_string, retry
 from tests.conf_settings import email, password, community_id, community_url
 
+
+
+
 @pytest.fixture
 def pubhelperv6():
     pub_helper=Pubshelper_v6(
@@ -25,10 +28,27 @@ def migratehelperv6(pubhelperv6):
     migratehelprv6 = Migratehelper_v6(pubhelperv6)
     return migratehelprv6
 
-def delete_many_pubs(pub_helper, pub_list=[]):
-    for p in pub_list:
-        pub_helper.delete_pub(p["id"])
+def delete_many_pubs(pubhelperv6, pub_list=[], autouse=True):
+    for pubid in pub_list:
+        pubhelperv6.delete_pub(pubid)
 
+@pytest.fixture
+def setUpandDeletePubs(pubhelperv6, migratehelperv6, create_pub_slugs, autouse=True):
+    # migratehelperv6.createPubs(create_pub_slugs)
+    pubs_batch = migratehelperv6.createPubs(create_pub_slugs)
+    yield pubs_batch
+    delete_many_pubs(pubhelperv6, pubs_batch['createdPubIds'] )
+
+
+
+@pytest.fixture
+def create_pub_slugs(autouse=True, number_of_pubs=3):
+    pubs_slugs=[]
+    for i in range(number_of_pubs):
+        slugger = "test-" + generate_random_number_string(10)
+        pubs_slugs.append({"slug":slugger, "title":slugger, "description":slugger})
+    yield pubs_slugs
+    return pubs_slugs
 
 def test_simple():
     assert 5 == 5
@@ -82,6 +102,30 @@ def test_create_batch_pubs(pubhelperv6,migratehelperv6):
     pubs_batch['createdPubIds'].sort()
     pubs_check["pubIds"].sort()
     assert pubs_batch['createdPubIds'] == pubs_check["pubIds"]
+    delete_many_pubs(pubhelperv6, pubs_batch['createdPubIds'] )
 
+def test_create_empty_title_batch_pubs(pubhelperv6,migratehelperv6):
+    """ system should fail to create a pub with empty title, 
+        since all evaluations are based on the parent paper title
+    """
+    pubs_slugs=[{},{},{}]
+    check_missing_args = False
+    # for i in range(3):
+    #     slugger = "test-" + generate_random_number_string(10)
+    #     pubs_slugs.append({"slug":slugger, "title":slugger, "description":slugger})
+    try:
+        pubs_batch = migratehelperv6.createPubs(evals=pubs_slugs)
+    except TypeError as e:
+        check_missing_args = all(word in e.__str__() for word in ["missing", "positional", "argument"])
+        # assert( all(word in e.__str__() for word in ["missing", "positional", "argument"]) )
+        assert(check_missing_args)
+    assert(check_missing_args)
+    # time.sleep(3)
+    # pubs_check = pubhelperv6.get_many_pubs(pub_ids = pubs_batch["createdPubIds"] )
+    # assert len(pubs_check) == len(pubs_slugs)
+    # pubs_batch['createdPubIds'].sort()
+    # pubs_check["pubIds"].sort()
+    # assert pubs_batch['createdPubIds'] == pubs_check["pubIds"]
+    # delete_many_pubs(pubhelperv6, pubs_batch['createdPubIds'] )
 
 
