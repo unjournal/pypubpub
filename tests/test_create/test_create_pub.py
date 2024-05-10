@@ -91,6 +91,7 @@ def test_create_a_pub():
 
 
 def test_create_batch_pubs(pubhelperv6,migratehelperv6):
+    """ test to create a batch of 3 pubs and then do cleanup and delete the batch of pubs"""
     pubs_slugs=[]
     for i in range(3):
         slugger = "test-" + generate_random_number_string(10)

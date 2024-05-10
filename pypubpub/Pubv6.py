@@ -15,6 +15,28 @@ import bibtexparser
 
 from pypubpub.utils import generate_random_number_string, generate_slug, retry #need hashed passwords for API
 
+SlugTuple=namedtuple( 'evaluationslugtitle', 'slug title')
+bibtex_tuple = namedtuple('BibTeX', 'author title year month')
+
+@dataclass
+class UserAttribution( ): #todo:   TypeDict with @dataclass  is   and counterproductive because they can clash
+    userId: str
+    roles: list[str] =None
+    affiliation:str=None
+    isAuthor:bool=True
+    orcid: str = None
+    name: str = None
+
+class UserAttributeDict(TypedDict ):
+    """Purely for typeing purposes to match UserAttribution dataclass"""
+    userId: str
+    roles: list[str] =None
+    affiliation:str=None
+    isAuthor:bool=True
+    orcid: str = None
+    name: str = None
+
+
 class Pubshelper_v6:
     def __init__(self, community_url="https://unjournal.pubpub.org", community_id="d28e8e57-7f59-486b-9395-b548158a27d6", email='contact@unjournal.org',password = 'pasw0rt' ):
         self.community_url = community_url
@@ -23,12 +45,15 @@ class Pubshelper_v6:
         self.logged_in = False
         self.email = email
         self.password = password
+        self.requests = requests.Session()
 
 
     def login(self):
+        print("email ::", self.email)
+        print("password ", self.password)
         k = keccak.new(digest_bits=512)
         k.update(self.password.encode())
-        response = requests.post(
+        response = self.requests.post(
             url=f'{self.community_url}/api/login',
             headers={ "accept": "application/json",
                       "cache-control": "no-cache",
@@ -52,7 +77,7 @@ class Pubshelper_v6:
 
     def authed_request(self, path, method='GET', body=None, options=None, additionalHeaders=None):
 
-            response = requests.request(
+            response = self.requests.request(
                 method,
                 f'{self.community_url}/api/{path}',
                 data=json.dumps(body) if body else None,
@@ -68,6 +93,7 @@ class Pubshelper_v6:
             )
 
             if response.status_code < 200 or response.status_code >= 300:
+                print("authed_request ::", response.status_code, response.text)
                 response.raise_for_status()
 
             return response.json()
@@ -117,12 +143,14 @@ class Pubshelper_v6:
     #  This method can be used when an external resource does not yet have a Pubpub Id. After using this method to connect
     # to an external resource, the external resource seems to get a Pubpub Id assigned to it, which could be used in the future.
     ###
-    def connect_pub_to_external(self, srcPubId,
-                                title,
-                                url,
-                                publicationDate,
-                                description,
+    def connect_pub_to_external(self, 
+                                srcPubId,
+                                title=None,
+                                url=None,
+                                publicationDate=None,
+                                description=None,
                                 doi=None,
+                                targetPubId=None,
                                 avatar=None,
                                 contributors=[],
                                 relationType="review",
@@ -130,7 +158,22 @@ class Pubshelper_v6:
                      pubIsParent=False,
                      approvedByTarget=True
                      ):
-
+        """
+            ###
+            # Note: To connect to an external article, you can first try the connect_pub method. Many external resources have a
+            # Pubpub Id. So you can use the connect_pub method after looking up its Pubpub Id.
+            #
+            #  This method can be used when an external resource does not yet have a Pubpub Id. After using this method to connect
+            # to an external resource, the external resource seems to get a Pubpub Id assigned to it, which could be used in the future.
+            ###
+        """
+        #todo: possibly check if the doi already contains doi.org, or better follow the redirect to the actual url
+        if (not url and doi and type(doi)==str):
+            if( not doi.startswith('https://doi.org/') ):
+                url = f'https://doi.org/{doi}'
+            else:
+                url = doi
+        print("+connect_pub_to_external ::", srcPubId, title, url, publicationDate, description, doi, avatar, contributors, relationType)
         response = self.authed_request(
             'pubEdges',
             'POST',
@@ -139,7 +182,7 @@ class Pubshelper_v6:
                 "relationType": relationType,
                 "pubIsParent": pubIsParent,
                 "approvedByTarget": approvedByTarget,
-                # "targetPubId": targetPubId,
+                "targetPubId": targetPubId,
                 **( {'rank': rank} if rank else {}),
                 "externalPublication": {
                     "avatar": avatar,
@@ -154,17 +197,50 @@ class Pubshelper_v6:
         )
         return response
 
-    def setAttribution(self, pubId, attribution):
+    def set_attribution(self, pubId, memberId, isAuthor=True, roles=None, affiliation=None):
         return self.authed_request(
             path = 'pubAttributions',
             method = "POST",
             body = {
                 "communityId" : self.community_id,
                 "pubId": pubId,
-                "roles": ["Writing – Review & Editing","Evaluation Manager",],
+                # "roles": ["Writing – Review & Editing","Evaluation Manager",],
+               "roles": roles,
+                # "attribution": attribution,
+                "isAuthor": isAuthor,
+                "affiliation": affiliation,
             }
 
         )
+
+    def set_attributions_multiple(self, pubId:str, attributions:list[ UserAttributeDict|UserAttribution], isAuthor=True, roles=None, affiliation=None):
+        """
+            set mulitple authors,editors,contributors at once
+            attributions: list of UserAttribution or UserAttributeDict required
+            pubId: str required
+            isAuthor: bool optional
+            roles: list[str] optional
+            affilition: str optional
+        """
+        if( attributions and  type(attributions[0])!=dict): 
+            attributions =  [a.__dict__ for a in attributions]
+        
+        return self.authed_request(
+            path = 'pubAttributions',
+            method = "POST",
+            body = {
+                "communityId" : self.community_id,
+                "pubId": pubId,
+                # "roles": ["Writing – Review & Editing","Evaluation Manager",],
+                "roles": roles,
+                "attributions": attributions,
+                "isAuthor": isAuthor,
+                "affiliation": affiliation,
+            }
+
+        )
+    
+
     ###
     # To disconnnect 2 pubs, this might be done before deleting them as part of cleanup
     #
@@ -318,7 +394,7 @@ class Migratehelper_v6:
     """This class is high level to make and manipulate v6 Pubs"""
     def __init__(self, pubhelperv6) -> None:
         self.pubhelperv6=pubhelperv6
-        pass
+
     def init_check(self):
         if(not self.pubhelperv6.logged_in):
             self.pubhelperv6.login()
@@ -465,36 +541,42 @@ class Migratehelper_v6:
 
 
 
-@dataclass
 class OrigPaperMetadata():
-    doi:str=None
-    url:str=None
-    title:str=None
-    description:str=None
-    bibtex_tuple = namedtuple('BibTeX', 'author title year month')
+    # doi:str=None
+    # url:str=None
+    # title:str=None
+    # description:str=None
+    # bibtex_metadata:bibtex_tuple=None
+    
 
     def __init__(self, doi:str, url:str=None,  title:str=None, description:str=None):
         self.doi=doi
+        self.url=url
+        self.title=title
+        self.description=description
         self.bibtex_metadata = None
         self.crossref_data = None
         
     def lookup(self):
         if(self.doi):
-            self.bibtex_metadata = self.doi2bib(self.doi)
+            self.bibtex_metadata = self.doi2bib()
 
         if( self.bibtex_metadata):
+            print("doi response successs:", self.bibtex_metadata)
             self.title = self.bibtex_metadata.title
             self.author = self.bibtex_metadata.author
             self.year = self.bibtex_metadata.year
             self.month = self.bibtex_metadata.month
-            return self
+            return self.bibtex_metadata
         else:
-            self.crossref_data = self.check_crossref(self.doi)
+            print("bad response from doi, trying crossref")
+            self.crossref_data = self.check_crossref()
             if(self.crossref_data):
                 self.title = self.crossref_data.title if 'title' in self.crossref_data else None
-                self.author = self.crossref_data.author if 'author' in self.crossref_data else None
-                
-            return self.crossref_data
+                self.author = self.crossref_data.author if 'author' in self.crossref_data else None                
+                return self.crossref_data
+            else:
+                return None
         # if(self.url):
         #     pass
 
@@ -512,9 +594,13 @@ class OrigPaperMetadata():
         try:
             response = requests.get(**self.doi2bib_options(self.doi))
             if response.status_code == 404:
+                print("Unable to find doi : ", self.doi)
+                print("trying `crossref` next")
                 return None
             if response.status_code >= 200 or response.status_code <300:
                 self.bibtex_metadata =  self.parse_bibtex_string( response.text )
+                print("+doi2bib response.txt::", response.text)
+                print("self.bibtex_metadata :: ",self.bibtex_metadata)
                 # self.title = self.bibtex_metadata[1]
                 return self.bibtex_metadata
 
@@ -553,7 +639,7 @@ class OrigPaperMetadata():
             title = entry.get('title', 'No title found')
             year = entry.get('year=', 'No year found')
             month = entry.get('month', 'No month found')
-            return OrigPaperMetadata.bibtex_tuple(author, title, year, month)
+            return bibtex_tuple(author, title, year, month)
         else:
             return
 
@@ -570,6 +656,7 @@ class OrigPaperMetadata():
                     },
         )
         if response.status_code == 404:
+            print("crossref undable to find doi : ", self.doi)
             return
         if response.status_code < 200 or response.status_code >= 300:
             response.raise_for_status()
@@ -618,6 +705,7 @@ class EvaluationPackage():
         if(verbose):
             self.print_conf()
         if(autorun):
+            self.init_login()
             self.process_run()
 
     def init_conf_setting(self):
@@ -625,15 +713,19 @@ class EvaluationPackage():
             # from collections import namedtuple
             
             self.config = record_pub_conf(email, password, community_id, community_url)
-            self.config.email = email
-            self.config.password = password
-            self.community_id = community_id
-            self.community_url = community_url
+            # self.config.email = email
+            # self.config.password = password
+            # self.config.community_id = community_id
+            # self.config.community_url = community_url
+            return self
+        
     def init_login(self):
-        self.pubshelper = Pubshelper_v6(community_url=self.community_url, community_id=self.community_id, email=self.config.email, password=self.config.password)
+        self.pubshelper = Pubshelper_v6(**self.config.__dict__)#//(community_url=self.community_url, community_id=self.community_id, email=self.config.email, password=self.config.password)
+        self.pubshelper.login()
         self.migratehelper = Migratehelper_v6(self.pubshelper)
 
     def print_conf(self):
+        print("print_conf ______ ")
         g=[f"{k}:{v}" for k,v in self.config.__dict__.items() if k in ['email',  'community_id', 'community_url']]
         print(self.config)
 
@@ -641,15 +733,19 @@ class EvaluationPackage():
         pass
     
     def lookup_parent_paper(self):
+        """lookup original parent paper in doi.org and crossref"""
         #lookup original
+        # todo: look up original in pubpub, if not there, just link the first pub
         # doi, url = self.lookup_parent_paper
         self.parentMetadata  = OrigPaperMetadata(doi=self.doi, url=self.url)
-        metadata = self.parentMetadata.lookup()
-        # look up original in pubpub, if not there, just link the first pub
-        # create pubs
-        #link pubs
+        self.parentMetadata.lookup()
+        a,b , title= self.parentMetadata.bibtex_metadata, self.parentMetadata.crossref_data, self.parentMetadata.title
+        if(not(a or b)):
+            raise Exception("Unable to find doi")
+        if(not title):
+            raise Exception("Unable to find title")
         return self.parentMetadata
-
+        
     def activePubsMaintainList(self):
         pass
 
@@ -661,18 +757,33 @@ class EvaluationPackage():
             # evals
             ):
         """Runs the process of initial original paper lookup, followed by pub creation, and then linking the pubs together."""
-        doi = self.doi
-        evaluation_manager_author_id = self.evaluation_manager_author_id
-        evals = self.evals
-        # self.pubshelper = Pubshelper_v6(community_url="https://unjournal.pubpub.org", community_id="d28e8e57-7f59-486b-9395-b548158a27d6", email='contact@unjournal.org', password='pasw0rt')
-        # self.pubshelper.login()
         self.parentMetadata = self.lookup_parent_paper()
+        print("sel.parentMetadata : ", self.parentMetadata.__dict__) 
+        # self.parentMetadata.title, 
+        #       self.parentMetadata.author, self.parentMetadata.year, self.parentMetadata.month   ,
+        #         self.parentMetadata.bibtex_metadata, self.parentMetadata.__dict__)
+
         #create evaluation manager Pub
-        create_eval_mgr_pub = self.create_eval_mgr_pub()
-        self.pubshelper.connect_pub_to_external
+        # eval_summ_pub = self.create_eval_summary_pub()
+        eval_summ_pub = self.create_base_pub(
+            author_id=["87999afb-d603-4871-947a-d8da5e6478de", "1da15791-f488-4371-bcdb-009e054881f3"], 
+            title_method=(lambda x: f"Evaluation Summary of {x}"),
+        )
+        print( "eval_summ_pub : ", eval_summ_pub)
+        # eval_mgr_pub = self.createpub().add_author() #todo: possible api interface change
+        # self.pubshelper.connect_pub_to_external # should just be done in each
         # retry()(self.pubshelper.connect_pub)(srcPubId=self.original_pub_id, targetPubId=eval_pub_id, relationType="review", pubIsParent=True, approvedByTarget=True)
 
-        self.original_pub_id = self.pubshelper.connect_pub_to_external(srcPubId=self.evaluation_manager_author_id, title="Original Article", url=f"https://doi.org/{self.doi}", publicationDate=None, description="Original Article", doi=self.doi)
+        self.evaluation_manager_author="1da15791-f488-4371-bcdb-009e054881f3"
+        self.original_pub_id
+        self.parent_pub = self.pubshelper.connect_pub_to_external(srcPubId=self.evaluation_manager_author_id, title="Original Article", publicationDate=None, description="Original Article", doi=self.doi)
+        
+        if(eval_summ_pub):
+            print("done done done ::: ", self.parent_pub)
+            return
+        else:
+            print("errrr")
+            return "errrrr"
         self.evaluation_pub_ids = []
         pub00 = self.pubshelper.create_pub(slugTestId,slugTestId,slugTestId )
 
@@ -686,31 +797,64 @@ class EvaluationPackage():
                 self.pubshelper.connect_pub(srcPubId=eval_pub_id, targetPubId=linked_pub_id, relationType="supplement", pubIsParent=False, approvedByTarget=True)
         self.pubshelper.logout()
 
-    def create_eval_mgr_pub(self):
-        """Creates the evaluation manager pub and links it to the original paper."""
+    def create_eval_summary_pub(self):
+        """
+        Creates the evaluation summary pub and links it to the original paper.
+        author of eval summary 
+        - evvaluators
+        - eval manager (last) 
+        """
         slug = generate_slug(title=self.parentMetadata.title)+generate_random_number_string(4)
         title = "Summary of Evaluations of " + self.parentMetadata.title
         mgr_pub =  self.pubshelper.create_pub(slug=slug, title=title, description=title)
-        mgr_pub = retry(sleep=2, retry=3)(self.pubshelper.getPubByIdorSlug)(slug)
-        self.pubshelper.authed_request()
+        mgr_pub = retry(sleep=2, retry=6)(self.pubshelper.getPubByIdorSlug)(slug)
+        self.pubshelper.set_attribution(mgr_pub['id'], self.evaluation_manager_author_id)
+        self.pubshelper.connect_pub_to_external(srcPubId=mgr_pub['id'], title="Original Article", url=f"https://doi.org/{self.doi}", publicationDate=None, description="Original Article", doi=self.doi)
 
-    def create_first_eval_pub(self, eval_date=None):
-        """Creates the first evaluation pub and links it to the original paper."""
-        pass
+    # def create_first_eval_pub(self, eval_date=None):
+    #     """Creates the first evaluation pub and links it to the original paper."""
+    #     pass
 
-    def create_eval_pub(self, eval_date=None):
-        pass
+    def create_eval_pub(self, author_id=None, ):
+        """Creates an evaluation pub and links it to the parent pub, and author"""
+        slug = generate_slug(title=self.parentMetadata.title)+generate_random_number_string(4)
+        title = "Evaluation of " + self.parentMetadata.title
+        mgr_pub =  self.pubshelper.create_pub(slug=slug, title=title, description=title)
+        mgr_pub = retry(sleep=2, retry=6)(self.pubshelper.getPubByIdorSlug)(slug)
+        self.pubshelper.set_attribution(mgr_pub['id'], self.evaluation_manager_author_id)
+        self.pubshelper.connect_pub_to_external(srcPubId=mgr_pub['id'], title="Original Article", url=f"https://doi.org/{self.doi}", publicationDate=None, description="Original Article", doi=self.doi)
 
-    def create_eval_title(self):
-        title = self.parentMetadata.title
-        slug = generate_slug()+generate_random_number_string(4)
-        pass
+    def create_base_pub(self, author_id:str|UserAttribution|list[UserAttribution|UserAttributeDict]=None, title_method=lambda x: f"Evaluation of {x}", slug_methodXX=None, description_methodXXX=None, eval_datXXXe=None):
+        """Generic Reusable Evaluation Creation Method: Creates a pub and links it to the parent pub, and author"""
+        slug = self.slugtitle().slug
+        title = title_method(self.parentMetadata.title)
+        pub =  self.pubshelper.create_pub(slug=slug, title=title, description=title)
+        pub = retry(sleep=2, retry=6)(self.pubshelper.getPubByIdorSlug)(pub['id'])
+        pub = pub or retry(sleep=5, retry=6)(self.pubshelper.getPubByIdorSlug)(slug)
 
+        print("pub : ", pub,pub['id'] )
+        self.pubshelper.connect_pub_to_external(srcPubId=pub['id'],  doi=self.doi, title=title, relationType="review", url=self.url if self.url else None)
+        if(not author_id):
+            return
+        if( type(author_id)==str):
+            self.pubshelper.set_attribution( pubId=pub["id"], memberId=author_id)
+        if( type(author_id)==list):
+            g = UserAttributeDict(userId=author_id[0])
+            self.pubshelper.set_attributions_multiple(pubId=pub["id"], memberIds=[author_id])
+            return
+
+    def slugtitle(self, title=None):
+        title = title or self.parentMetadata.title
+        print('+slugtitle title:::', title)
+        slug = generate_slug(title)+generate_random_number_string(4)
+        print('+slugtitle slug:::', slug)
+        return SlugTuple(slug=slug, title=title)
 
     @staticmethod
-    def possible_people(fullname, firstName, lastName):
+    def list_people(fullname, firstName, lastName):
         """returns a list of possible pubpub members"""
         # first get list of all members
+        pass
             
 
 
@@ -745,5 +889,29 @@ EvaluationPackage(
         }},
         {}
     ],
+    autorun=False
 
+)
+
+
+
+EvaluationPackage(
+    doi="10.1038/s41586-021-03402-5", #todo: for default doi put in a base Unjournal Pubpub doi such as the template 
+    evaluation_manager_author="111-111111",
+    # evaluation_manager_author=D_REINSTEIN,
+
+    # evaluation_manager_author={
+    #     "id": "",
+    #     "name": "Jim Smith",
+    # },
+    evals=[
+        {"author":{
+            "name": "anonymous",
+        }}, #title and Evaluation - follow template - Evaluation of <title>
+        {"author":{
+            "name": "Jim Smith",
+        }},
+        {}
+    ],
+    autorun=False
 )

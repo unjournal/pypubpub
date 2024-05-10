@@ -1,6 +1,14 @@
 import random
 import string
 import time
+import traceback
+
+import nltk
+nltk.download('punkt') #don't worry: download check if previously downloaded into the environment
+# nltk.download('stopwords')
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+from slugify import slugify  #python-slugify package
 
 
 def retry(sleep=2, retry=3):
@@ -25,26 +33,35 @@ def generate_random_number_string(length):
     return ''.join(random.choice(string.digits) for _ in range(length))
 
 
-#https://www.phind.com/search?cache=dreok6n9yhkai8qqg18mpvbe
-import re
-from nltk.corpus import stopwords
-from nltk.tokenize import word_tokenize
-from slugify import slugify  #python-slugify
 
 # Download stop words if not already downloaded
 # nltk.download('stopwords')
-
-def generate_slug(title, keep_stop_words=False,slug_length=1):
+#https://www.phind.com/search?cache=dreok6n9yhkai8qqg18mpvbe
+def generate_slug(title, keep_stop_words=False,slug_length=0):
     """ Generate a slug from a title """
     if(keep_stop_words):
         return slugify(title)
+    else:
+        return generate_slug_without_stop_words(title,slug_length)
+
+def generate_slug_without_stop_words(title,slug_length=0, word_min_length=3):    
     # Tokenize the title into words
-    words = word_tokenize(title)
+    words:list[str] = None
+    try:
+        words = word_tokenize(title)
+    except LookupError as e: #if not downloaded
+        print("Downloading NLTK stopwords")
+        import nltk
+        nltk.download('punkt')
+    except Exception as e:
+        print("other error ::: ")
+        print(" : ",e)
+        print(traceback.print_exception(e))
     
     # Remove stop words
     stop_words = set(stopwords.words('english'))
-    filtered_words = [word for word in words if word.casefold() not in stop_words]
-    return slugify(filtered_words)
+    filtered_words = [word for word in words if (len(word)>=word_min_length and(word.casefold() not in stop_words))]
+    return slugify("".join(filtered_words))
     # len_f = len(filtered_words) - slug_length
     # if(slug_length==1):
     #     return random.choice(filtered_words)
