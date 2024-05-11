@@ -53,12 +53,14 @@ def test_create_eval_package():
         # },ww
         evals=[
             {"author":{
-                "name": "anonymous",
+                "id": "1da15791-f488-4371-bcdb-009e054881f3",
+                "name": "Nesim Sssss",
             }}, #title and Evaluation - follow template - Evaluation of <title>
             {"author":{
-                "name": "Jim Smith",
+                "id": "87999afb-d603-4871-947a-d8da5e6478de",
+                "name": "Davit J",
             }},
-            {}
+            {} #example of empty eval, where author not yet known
         ],
         verbose=True,
         # autorun=True

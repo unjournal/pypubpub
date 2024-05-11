@@ -699,6 +699,7 @@ class EvaluationPackage():
 
         self.parentMetadata = None
         self.remainingPubs=[] # if managing activities use these 2 lists to manage completed and wip 
+        self.eval_summ_pub:dict = None
         self.activePubs=[]
         self.completedPubs=[]
         self.init_conf_setting()
@@ -759,26 +760,23 @@ class EvaluationPackage():
         """Runs the process of initial original paper lookup, followed by pub creation, and then linking the pubs together."""
         self.parentMetadata = self.lookup_parent_paper()
         print("sel.parentMetadata : ", self.parentMetadata.__dict__) 
-        # self.parentMetadata.title, 
-        #       self.parentMetadata.author, self.parentMetadata.year, self.parentMetadata.month   ,
-        #         self.parentMetadata.bibtex_metadata, self.parentMetadata.__dict__)
 
         #create evaluation manager Pub
-        # eval_summ_pub = self.create_eval_summary_pub()
-        eval_summ_pub = self.create_base_pub(
+        self.eval_summ_pub = self.create_base_pub(
             author_id=["87999afb-d603-4871-947a-d8da5e6478de", "1da15791-f488-4371-bcdb-009e054881f3"], 
             title_method=(lambda x: f"Evaluation Summary of {x}"),
         )
-        print( "eval_summ_pub : ", eval_summ_pub)
+        print( "eval_summ_pub : ", self.eval_summ_pub)
+        self.create_evaluation_pub_stubs()
+        self.link_evaluation_pub_stubs()
         # eval_mgr_pub = self.createpub().add_author() #todo: possible api interface change
         # self.pubshelper.connect_pub_to_external # should just be done in each
         # retry()(self.pubshelper.connect_pub)(srcPubId=self.original_pub_id, targetPubId=eval_pub_id, relationType="review", pubIsParent=True, approvedByTarget=True)
 
-        self.evaluation_manager_author="1da15791-f488-4371-bcdb-009e054881f3"
-        self.original_pub_id
-        self.parent_pub = self.pubshelper.connect_pub_to_external(srcPubId=self.evaluation_manager_author_id, title="Original Article", publicationDate=None, description="Original Article", doi=self.doi)
+        # self.original_pub_id
+        # self.parent_pub = self.pubshelper.connect_pub_to_external(srcPubId=self.evaluation_manager_author_id, title="Original Article", publicationDate=None, description="Original Article", doi=self.doi)
         
-        if(eval_summ_pub):
+        if(self.eval_summ_pub):
             print("done done done ::: ", self.parent_pub)
             return
         else:
@@ -850,6 +848,11 @@ class EvaluationPackage():
         print('+slugtitle slug:::', slug)
         return SlugTuple(slug=slug, title=title)
 
+    def create_evaluation_pub_stubs(self):
+        pass
+    def link_evaluation_pub_stubs(self):
+        pass
+    
     @staticmethod
     def list_people(fullname, firstName, lastName):
         """returns a list of possible pubpub members"""
