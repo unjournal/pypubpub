@@ -1,8 +1,22 @@
-# Configuring PubPub API (V6) for The Unjournal 
+# Configuring PubPub API (V6) for The Unjournal
 
 1. To be useable and clearly understand what functions do
 
+- to enable ad-hoc adjustments and bulk fixes
+- to build other functionality and integrations
+
 2. To try to automate The Unjournal's production process
+
+- Mainly building the 'evaluation packages'
+
+- Also to build metadata files for RePEc
+- Enable other feeds and updates (e.g., evaluation data reporting)
+
+## Project management
+
+Coda task: [Work w/ PubPub API](https://coda.io/d/_dOyXJoZ6imx#All-unfinished-current-Tasks_tuXFw/r159&view=modal)
+
+See subtasks within
 
 
 ## Scratch work and notes
