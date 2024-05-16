@@ -13,7 +13,7 @@ from Crypto.Hash import keccak
 import bibtexparser
 
 
-from pypubpub.utils import generate_random_number_string, generate_slug, retry #need hashed passwords for API
+from pypubpub.utils import generate_random_number_string, generate_slug, isMaybePubId, retry #need hashed passwords for API
 
 SlugTuple=namedtuple( 'evaluationslugtitle', 'slug title')
 bibtex_tuple = namedtuple('BibTeX', 'author title year month')
@@ -120,6 +120,9 @@ class Pubshelper_v6:
                      approvedByTarget=True,
                      rank=None
                      ):
+        """connect 2 pubs. Intended for Pubs within PubPub and the same community.
+            For connecting to an external resource, its suggested to use connect_pub_to_external
+        """
 
         response = self.authed_request(
             'pubEdges',
@@ -674,11 +677,42 @@ class record_pub_conf():
 from tests.conf_settings import email, password, community_id, community_url
 
 class EvaluationPackage():
+    """
+     This class is high level wrapper to make or initialize a Pubpub evaluation package
+     It can be used from commandline or in a notebook or script to create a new evaluation package.
+     By default, once the arguments are passed, `autorun=True` and it will start making calls to Pubpub to look up the parent paper metadata and create the Pubs
+     `autorun=False` can be set to delay the process_run() call until later.
+
+     Example:
+     ```
+     EvaluationPackage(
+        doi="10.1038/s41586-021-03402-5", 
+        evaluation_manager_author="111-111111",
+        evals=[
+                "87999afb-d603-4871-947a-d8da5e6478de",
+                {"author":{
+                    "id": "87999afb-d603-4871-947a-d8da5e6478de",
+                }},  
+                {},
+                {}
+            ],
+        autorun=False
+    )
+    ```
+    This will look up metatadata for the doi, and then create 4 Pubs, one for the evaluation summary,
+      and 4 for the evaluations. 
+      The pubs will be linked to each other as supplement, and will be link as a review to the parent paper as external resource. In some cases it may be possible link to the parent paper as a Pubpub pub, but this is not yet implemented. 
+      The evaluation summary will have multiple authers - the evaluators listed, and the evaluation manager.
+      The evals array speciefies properties for each pub. In order:
+        1. The first entry is just a string, and it will used as the author id for the first pub.
+        2. The second entry only specifies the author id, and it will be used as the author id for the second pub.
+        3 - 4. The third and fourth entries are empty dicts, and they will be used to create the third and fourth pubs, with no author. The author will need to be added later.
+          """
     def __init__(
             self, 
             doi:str|dict, 
             evaluation_manager_author:str|dict|int, 
-            evals:list,
+            evaluations:list,
             config:record_pub_conf=None,
             url:str=None,
             title:str=None,
@@ -688,7 +722,7 @@ class EvaluationPackage():
             ):
         self.doi = doi
         self.evaluation_manager_author = evaluation_manager_author
-        self.evals = evals
+        self.evaluations_input = evaluations
         self.config = config
         self.url=url
         self.title=title
@@ -700,7 +734,7 @@ class EvaluationPackage():
         self.parentMetadata = None
         self.remainingPubs=[] # if managing activities use these 2 lists to manage completed and wip 
         self.eval_summ_pub:dict = None
-        self.activePubs=[]
+        self.activePubs:tuple[str,dict]=[] #type is a tuple of the (pubId, dict of pub)
         self.completedPubs=[]
         self.init_conf_setting()
         if(verbose):
@@ -760,15 +794,16 @@ class EvaluationPackage():
         """Runs the process of initial original paper lookup, followed by pub creation, and then linking the pubs together."""
         self.parentMetadata = self.lookup_parent_paper()
         print("sel.parentMetadata : ", self.parentMetadata.__dict__) 
-
+        self.author_ids_all_ = self.author_ids_all()
         #create evaluation manager Pub
         self.eval_summ_pub = self.create_base_pub(
             author_id=["87999afb-d603-4871-947a-d8da5e6478de", "1da15791-f488-4371-bcdb-009e054881f3"], 
             title_method=(lambda x: f"Evaluation Summary of {x}"),
         )
         print( "eval_summ_pub : ", self.eval_summ_pub)
-        self.create_evaluation_pub_stubs()
-        self.link_evaluation_pub_stubs()
+        self.create_evaluation_pubs()
+        self.link_evaluation_pubs()
+        self.associate_authors_to_eval_summary()
         # eval_mgr_pub = self.createpub().add_author() #todo: possible api interface change
         # self.pubshelper.connect_pub_to_external # should just be done in each
         # retry()(self.pubshelper.connect_pub)(srcPubId=self.original_pub_id, targetPubId=eval_pub_id, relationType="review", pubIsParent=True, approvedByTarget=True)
@@ -785,22 +820,22 @@ class EvaluationPackage():
         self.evaluation_pub_ids = []
         pub00 = self.pubshelper.create_pub(slugTestId,slugTestId,slugTestId )
 
-        for i, eval in enumerate(self.evals):
-            author_name = eval.get('author', {}).get('name', f"anonymous{i}")
-            eval_title = f"Evaluation of {author_name}"
-            eval_pub_id = self.pubshelper.create_pub(slug=f"eval-{i}", title=eval_title, description=f"Evaluation by {author_name}")
-            self.evaluation_pub_ids.append(eval_pub_id)
-            self.pubshelper.connect_pub(srcPubId=self.original_pub_id, targetPubId=eval_pub_id, relationType="review", pubIsParent=True, approvedByTarget=True)
-            for linked_pub_id in self.evaluation_pub_ids[:-1]: # Link to all previous evaluations
-                self.pubshelper.connect_pub(srcPubId=eval_pub_id, targetPubId=linked_pub_id, relationType="supplement", pubIsParent=False, approvedByTarget=True)
-        self.pubshelper.logout()
+        # for i, evaluation in enumerate(self.evals):
+        #     author_name = evaluation.get('author', {}).get('name', f"anonymous{i}")
+        #     eval_title = f"Evaluation of {author_name}"
+        #     eval_pub_id = self.pubshelper.create_pub(slug=f"evaluation-{i}", title=eval_title, description=f"Evaluation by {author_name}")
+        #     self.evaluation_pub_ids.append(eval_pub_id)
+        #     self.pubshelper.connect_pub(srcPubId=self.original_pub_id, targetPubId=eval_pub_id, relationType="review", pubIsParent=True, approvedByTarget=True)
+        #     for linked_pub_id in self.evaluation_pub_ids[:-1]: # Link to all previous evaluations
+        #         self.pubshelper.connect_pub(srcPubId=eval_pub_id, targetPubId=linked_pub_id, relationType="supplement", pubIsParent=False, approvedByTarget=True)
+        # self.pubshelper.logout()
 
     def create_eval_summary_pub(self):
         """
         Creates the evaluation summary pub and links it to the original paper.
-        author of eval summary 
+        author of evaluation summary 
         - evvaluators
-        - eval manager (last) 
+        - evaluation manager (last) 
         """
         slug = generate_slug(title=self.parentMetadata.title)+generate_random_number_string(4)
         title = "Summary of Evaluations of " + self.parentMetadata.title
@@ -813,7 +848,7 @@ class EvaluationPackage():
     #     """Creates the first evaluation pub and links it to the original paper."""
     #     pass
 
-    def create_eval_pub(self, author_id=None, ):
+    def XXXcreate_eval_pub(self, author_id=None, ):
         """Creates an evaluation pub and links it to the parent pub, and author"""
         slug = generate_slug(title=self.parentMetadata.title)+generate_random_number_string(4)
         title = "Evaluation of " + self.parentMetadata.title
@@ -831,15 +866,17 @@ class EvaluationPackage():
         pub = pub or retry(sleep=5, retry=6)(self.pubshelper.getPubByIdorSlug)(slug)
 
         print("pub : ", pub,pub['id'] )
-        self.pubshelper.connect_pub_to_external(srcPubId=pub['id'],  doi=self.doi, title=title, relationType="review", url=self.url if self.url else None)
+        self.pubshelper.connect_pub_to_external(srcPubId=pub['id'],  doi=self.doi, title=self.parentMetadata.title, relationType="review", url=self.url if self.url else None)
         if(not author_id):
-            return
+            return pub
         if( type(author_id)==str):
-            self.pubshelper.set_attribution( pubId=pub["id"], memberId=author_id)
+            author_attrib = self.pubshelper.set_attribution( pubId=pub["id"], memberId=author_id)
+            return author_attrib
         if( type(author_id)==list):
-            g = UserAttributeDict(userId=author_id[0])
-            self.pubshelper.set_attributions_multiple(pubId=pub["id"], memberIds=[author_id])
-            return
+            # g = UserAttributeDict(userId=author_id[0])
+            attributions=[{"userId":i} for i in author_id]
+            author_attrib = self.pubshelper.set_attributions_multiple(pubId=pub["id"], attributions=attributions)
+            return author_attrib
 
     def slugtitle(self, title=None):
         title = title or self.parentMetadata.title
@@ -848,10 +885,35 @@ class EvaluationPackage():
         print('+slugtitle slug:::', slug)
         return SlugTuple(slug=slug, title=title)
 
-    def create_evaluation_pub_stubs(self):
-        pass
-    def link_evaluation_pub_stubs(self):
-        pass
+    def create_evaluation_pubs(self, set_author=True):
+        """Creates the evaluation pubs and links them to the original paper.
+           By default the author is added to the Pub. This can be turned of by setting `set_author=False` 
+        """
+        for i, evaluation in enumerate(self.evaluations_input):
+            auth_id = self.author_id_from_eval(evaluation)
+            eval_temp = self.create_base_pub(
+                author_id=auth_id if set_author else None,
+                title_method=(lambda x: f"Evaluation of {x}"),
+            )
+            self.activePubs.append((eval_temp['id'] , eval_temp))
+        return self.activePubs
+
+    def link_evaluation_pubs(self):
+        """Links the evaluation pubs to the evaluation summary pub, and each other."""
+        self.author_ids_all_ = self.author_ids_all() #todo: make into property with a flag to set after setting all authors. Or could check if value is None vs. type(str)
+        for i, evaluation in self.activePubs:
+            self.pubshelper.connect_pub( 
+                srcPubId=evaluation['id'], 
+                targetPubId=self.eval_summ_pub['id'],  
+                relationType="supplement", 
+                pubIsParent=False, 
+                approvedByTarget=True
+            )
+
+    def associate_authors_to_eval_summary(self):
+        """Associates the authors of the evaluation pubs to the evaluation summary pub."""
+        author_attrib = self.pubshelper.set_attributions_multiple(pubId=self.eval_summ_pub["id"], memberIds=self.author_ids_all())
+        return author_attrib
     
     @staticmethod
     def list_people(fullname, firstName, lastName):
@@ -859,9 +921,53 @@ class EvaluationPackage():
         # first get list of all members
         pass
             
+    def author_ids_all(self):
+        """returns a list of all author ids for the evals and the evaluation manager"""
+        eval_author_ids=self.author_ids_for_only_evals() or []
+        mgr_id = self.author_id_for_eval_mgr() or []
+        return [*eval_author_ids, *mgr_id]
 
+    def author_ids_for_only_evals(self)->list[str]:
+        """returns a list of author ids for only the evals, not the evaluation manager"""
+        _author_ids = []
+        for evaluation in  self.evaluations_input:
+            _author_ids.append(self.author_id_from_eval(evaluation))
+        return _author_ids
 
-    
+    def author_id_for_eval_mgr(self):
+        """
+        returns the author id for the evaluation manager from the internal state of an EvaluationPackage instance
+        currently just returns the field without processing
+        """
+        if( type(self.evaluation_manager_author)==str and isMaybePubId(self.evaluation_manager_author)):
+            return self.evaluation_manager_author
+        else:
+            return self.evaluation_manager_author #todo: i
+
+    @staticmethod
+    def author_id_from_eval(evaluation:dict|str)->str:
+        """
+        returns the author id from the evaluation dict
+        does not yet support name lookup
+        if the author is a string, it is assumed to be a pubpub id
+        examples of evaluation dict parsing
+        1. evaluation is not a dict but is a string, then check if the string is a udid or a name
+            `"87999afb-d603-4871-947a-d8da5e6478de"`
+        2. {"author": ""87999afb-d603-4871-947a-d8da5e6478de""}
+        3. {"author": {"id": "87999afb-d603-4871-947a-d8da5e6478de", "name": "Jim Smith"}} 
+        4X. NOT SUPPORTED YET {"author": "Jim Smith"} 
+        """
+        if(type( evaluation)==str and isMaybePubId(evaluation["author"])):
+            return evaluation
+        if("author" not in evaluation or not evaluation["author"]):
+            return "AUTHOR-ID-NOT-FOUND-OR_DO-LOOK-UP"
+        if(type(evaluation["author"])==str and isMaybePubId(evaluation["author"]) ): #todo - make sure `and` exits if type check fails
+            return evaluation["author"]
+        elif( type(evaluation["author"])==dict and "id" in evaluation["author"]):
+            return evaluation["author"]["id"]
+        else:
+            return "AUTHOR-ID-NOT-FOUND-OR_DO-LOOK-UP" #todo: implemenet id lookup by name
+
    
 # time saver:
 #  
@@ -883,7 +989,7 @@ EvaluationPackage(
         "id": "",
         "name": "Jim Smith",
     },
-    evals=[
+    evaluations=[
         {"author":{
             "name": "anonymous",
         }}, #title and Evaluation - follow template - Evaluation of <title>
@@ -907,7 +1013,7 @@ EvaluationPackage(
     #     "id": "",
     #     "name": "Jim Smith",
     # },
-    evals=[
+    evaluations=[
         {"author":{
             "name": "anonymous",
         }}, #title and Evaluation - follow template - Evaluation of <title>
