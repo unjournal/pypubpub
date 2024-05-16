@@ -879,7 +879,7 @@ class EvaluationPackage():
             return pub
         if( type(author_id)==list):
             # g = UserAttributeDict(userId=author_id[0])
-            attributions=[{"userId":i} for i in author_id]
+            attributions=[ UserAttributeDict(userId=i, isAuthor=True) for i in author_id]
             print(f"+create base_pub author_id::{author_id} attributions ::{attributions}")
             author_attrib = self.pubshelper.set_attributions_multiple(pubId=pub["id"], attributions=attributions)
             return pub
@@ -919,7 +919,7 @@ class EvaluationPackage():
     def associate_authors_to_eval_summary(self):
         """Associates the authors of the evaluation pubs to the evaluation summary pub."""
         attributions=[
-            UserAttributeDict(userId=a) 
+            UserAttributeDict(userId=a, isAuthor=True) 
              for a in 
              self.author_ids_all()
              if a
