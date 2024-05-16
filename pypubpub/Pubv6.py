@@ -200,23 +200,26 @@ class Pubshelper_v6:
         )
         return response
 
-    def set_attribution(self, pubId, memberId, isAuthor=True, roles=None, affiliation=None):
+    def set_attribution(self, pubId, userId, isAuthor=True, roles=None, affiliation=None)->dict:
+        body = {
+            "communityId" : self.community_id,
+            "pubId": pubId,
+            "userId":userId,
+            # "roles": ["Writing – Review & Editing","Evaluation Manager",],
+            "roles": roles,
+            # "attribution": attribution,
+            "isAuthor": isAuthor,
+            "affiliation": affiliation,
+        }
+        print( "set_attribution ::", body)
         return self.authed_request(
             path = 'pubAttributions',
             method = "POST",
-            body = {
-                "communityId" : self.community_id,
-                "pubId": pubId,
-                # "roles": ["Writing – Review & Editing","Evaluation Manager",],
-               "roles": roles,
-                # "attribution": attribution,
-                "isAuthor": isAuthor,
-                "affiliation": affiliation,
-            }
+            body = body
 
         )
 
-    def set_attributions_multiple(self, pubId:str, attributions:list[ UserAttributeDict|UserAttribution], isAuthor=True, roles=None, affiliation=None):
+    def set_attributions_multiple(self, pubId:str, attributions:list[ UserAttributeDict|UserAttribution], isAuthor=True, roles=None, affiliation=None)->list[dict]:
         """
             set mulitple authors,editors,contributors at once
             attributions: list of UserAttribution or UserAttributeDict required
@@ -226,19 +229,21 @@ class Pubshelper_v6:
             affilition: str optional
         """
         if( attributions and  type(attributions[0])!=dict): 
-            attributions =  [a.__dict__ for a in attributions]
-        
+            attributions =  [a.__dict__ for a in attributions if a]
+        print("set_attributions_multiple  attributions ::", attributions)
+        print(pubId, self.community_id)
         return self.authed_request(
-            path = 'pubAttributions',
+            path = 'pubAttributions/batch',
             method = "POST",
             body = {
                 "communityId" : self.community_id,
                 "pubId": pubId,
+                # todo: move these fields into the attributions field
                 # "roles": ["Writing – Review & Editing","Evaluation Manager",],
-                "roles": roles,
-                "attributions": attributions,
-                "isAuthor": isAuthor,
-                "affiliation": affiliation,
+                # "roles": roles,
+                "attributions": [a for a in attributions if a],
+                # "isAuthor": isAuthor,
+                # "affiliation": affiliation,
             }
 
         )
@@ -812,7 +817,7 @@ class EvaluationPackage():
         # self.parent_pub = self.pubshelper.connect_pub_to_external(srcPubId=self.evaluation_manager_author_id, title="Original Article", publicationDate=None, description="Original Article", doi=self.doi)
         
         if(self.eval_summ_pub):
-            print("done done done ::: ", self.parent_pub)
+            print("done done done ::: ", self.doi,self.parentMetadata)
             return
         else:
             print("errrr")
@@ -857,7 +862,7 @@ class EvaluationPackage():
         self.pubshelper.set_attribution(mgr_pub['id'], self.evaluation_manager_author_id)
         self.pubshelper.connect_pub_to_external(srcPubId=mgr_pub['id'], title="Original Article", url=f"https://doi.org/{self.doi}", publicationDate=None, description="Original Article", doi=self.doi)
 
-    def create_base_pub(self, author_id:str|UserAttribution|list[UserAttribution|UserAttributeDict]=None, title_method=lambda x: f"Evaluation of {x}", slug_methodXX=None, description_methodXXX=None, eval_datXXXe=None):
+    def create_base_pub(self, author_id:str|UserAttribution|list[UserAttribution|UserAttributeDict]=None, title_method=lambda x: f"Evaluation of {x}", slug_methodXX=None, description_methodXXX=None, eval_datXXXe=None)->dict: #todo : make more return types to properly check 
         """Generic Reusable Evaluation Creation Method: Creates a pub and links it to the parent pub, and author"""
         slug = self.slugtitle().slug
         title = title_method(self.parentMetadata.title)
@@ -870,13 +875,14 @@ class EvaluationPackage():
         if(not author_id):
             return pub
         if( type(author_id)==str):
-            author_attrib = self.pubshelper.set_attribution( pubId=pub["id"], memberId=author_id)
-            return author_attrib
+            author_attrib = self.pubshelper.set_attribution( pubId=pub["id"], userId=author_id)
+            return pub
         if( type(author_id)==list):
             # g = UserAttributeDict(userId=author_id[0])
             attributions=[{"userId":i} for i in author_id]
+            print(f"+create base_pub author_id::{author_id} attributions ::{attributions}")
             author_attrib = self.pubshelper.set_attributions_multiple(pubId=pub["id"], attributions=attributions)
-            return author_attrib
+            return pub
 
     def slugtitle(self, title=None):
         title = title or self.parentMetadata.title
@@ -912,7 +918,13 @@ class EvaluationPackage():
 
     def associate_authors_to_eval_summary(self):
         """Associates the authors of the evaluation pubs to the evaluation summary pub."""
-        author_attrib = self.pubshelper.set_attributions_multiple(pubId=self.eval_summ_pub["id"], memberIds=self.author_ids_all())
+        attributions=[
+            UserAttributeDict(userId=a) 
+             for a in 
+             self.author_ids_all()
+             if a
+        ]
+        author_attrib = self.pubshelper.set_attributions_multiple(pubId=self.eval_summ_pub["id"], attributions=attributions)
         return author_attrib
     
     @staticmethod
@@ -924,8 +936,8 @@ class EvaluationPackage():
     def author_ids_all(self):
         """returns a list of all author ids for the evals and the evaluation manager"""
         eval_author_ids=self.author_ids_for_only_evals() or []
-        mgr_id = self.author_id_for_eval_mgr() or []
-        return [*eval_author_ids, *mgr_id]
+        mgr_id = self.author_id_for_eval_mgr() 
+        return [*eval_author_ids, mgr_id ] if mgr_id else eval_author_ids
 
     def author_ids_for_only_evals(self)->list[str]:
         """returns a list of author ids for only the evals, not the evaluation manager"""
@@ -934,7 +946,7 @@ class EvaluationPackage():
             _author_ids.append(self.author_id_from_eval(evaluation))
         return _author_ids
 
-    def author_id_for_eval_mgr(self):
+    def author_id_for_eval_mgr(self)->str: #todo: make a property
         """
         returns the author id for the evaluation manager from the internal state of an EvaluationPackage instance
         currently just returns the field without processing
@@ -960,13 +972,15 @@ class EvaluationPackage():
         if(type( evaluation)==str and isMaybePubId(evaluation["author"])):
             return evaluation
         if("author" not in evaluation or not evaluation["author"]):
-            return "AUTHOR-ID-NOT-FOUND-OR_DO-LOOK-UP"
+            print("AUTHOR-ID-NOT-FOUND-OR_DO-LOOK-UP")
+            return None
         if(type(evaluation["author"])==str and isMaybePubId(evaluation["author"]) ): #todo - make sure `and` exits if type check fails
             return evaluation["author"]
         elif( type(evaluation["author"])==dict and "id" in evaluation["author"]):
             return evaluation["author"]["id"]
         else:
-            return "AUTHOR-ID-NOT-FOUND-OR_DO-LOOK-UP" #todo: implemenet id lookup by name
+            print("AUTHOR-ID-NOT-FOUND-OR_DO-LOOK-UP")
+            return None #todo: implemenet id lookup by name
 
    
 # time saver:
