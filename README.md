@@ -12,6 +12,8 @@
 - Also to build metadata files for RePEc
 - Enable other feeds and updates (e.g., evaluation data reporting)
 
+3. Usage: See the 'tests/' directory. The requirements for access are Pubpub information: community_id, community_url, email, password. To find out Pubpub Ids such as the community_id see the FAQ at: https://github.com/pubpub/sdk?tab=readme-ov-file#faq , which recommends the PubPub ID Finder:  https://pubpub.tefkah.com/
+
 ## Project management
 
 Coda task: [Work w/ PubPub API](https://coda.io/d/_dOyXJoZ6imx#All-unfinished-current-Tasks_tuXFw/r159&view=modal)
