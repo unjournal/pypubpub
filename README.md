@@ -26,5 +26,12 @@ See subtasks within
 https://colab.research.google.com/drive/15gSHFLqHubhtCJH-uW5z5R9g6I-57-th#scrollTo=xBnL02vEg6l0
 
 https://colab.research.google.com/drive/1kj9njUpJkJ6hAxrLaUi4EYeZu0u9L1O_#scrollTo=tVSbFxNISAEG
+- shows SDK usage in notebook 
+- also saved as a gist: https://colab.research.google.com/gist/Log-of-e/c552b36686f55bfdf7c8ce60d8a00f70/v6-v7-process-and-automation.ipynb, https://gist.github.com/Log-of-e/c552b36686f55bfdf7c8ce60d8a00f70#comments
 
 https://docs.google.com/document/d/1F9w46tN3u8eeE8f5iTi543eDxAf9BTJ1OXJgxDHtPsw/edit#heading=h.57ljlv1pdkue
+
+
+
+
+
