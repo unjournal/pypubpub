@@ -822,18 +822,6 @@ class EvaluationPackage():
         else:
             print("errrr")
             return "errrrr"
-        self.evaluation_pub_ids = []
-        pub00 = self.pubshelper.create_pub(slugTestId,slugTestId,slugTestId )
-
-        # for i, evaluation in enumerate(self.evals):
-        #     author_name = evaluation.get('author', {}).get('name', f"anonymous{i}")
-        #     eval_title = f"Evaluation of {author_name}"
-        #     eval_pub_id = self.pubshelper.create_pub(slug=f"evaluation-{i}", title=eval_title, description=f"Evaluation by {author_name}")
-        #     self.evaluation_pub_ids.append(eval_pub_id)
-        #     self.pubshelper.connect_pub(srcPubId=self.original_pub_id, targetPubId=eval_pub_id, relationType="review", pubIsParent=True, approvedByTarget=True)
-        #     for linked_pub_id in self.evaluation_pub_ids[:-1]: # Link to all previous evaluations
-        #         self.pubshelper.connect_pub(srcPubId=eval_pub_id, targetPubId=linked_pub_id, relationType="supplement", pubIsParent=False, approvedByTarget=True)
-        # self.pubshelper.logout()
 
     def create_eval_summary_pub(self):
         """
