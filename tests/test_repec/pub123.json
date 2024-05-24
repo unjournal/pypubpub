@@ -1,0 +1,710 @@
+{
+    "id": "db6fdb17-7ab3-41be-899a-1c54277b965a",
+    "slug": "guest",
+    "title": "Evaluation Summary and Metrics: 'The Benefits and Costs of Guest Worker Programs: Experimental Evidence from the India-UAE Migration Corridor'",
+    "htmlTitle": "Evaluation Summary and Metrics: 'The Benefits and Costs of Guest Worker Programs: Experimental Evidence from the India-UAE Migration Corridor'",
+    "description": "Evaluation Summary and Metrics: 'The Benefits and Costs of Guest Worker Programs: Experimental Evidence from the India-UAE Migration Corridor' for The Unjournal. Evaluators: Anonymous for sharing with authors",
+    "htmlDescription": null,
+    "avatar": null,
+    "customPublishedAt": null,
+    "doi": "10.21428/d28e8e57.db6fdb17",
+    "labels": null,
+    "downloads": null,
+    "metadata": null,
+    "viewHash": null,
+    "editHash": null,
+    "reviewHash": null,
+    "commentHash": null,
+    "draftId": "b095cbf2-5b0f-425b-b963-77e63e19b6a9",
+    "communityId": "d28e8e57-7f59-486b-9395-b548158a27d6",
+    "crossrefDepositRecordId": "add19540-2ac7-44b7-9650-83fc55e4e45e",
+    "scopeSummaryId": "0b512299-34d6-48b9-95c5-abee7cac01bd",
+    "createdAt": "2024-04-05T22:15:33.966Z",
+    "updatedAt": "2024-05-16T16:31:35.368Z",
+    "members": [
+        {
+            "id": "f9489824-5973-4e6e-9e76-0d4d6787fc18",
+            "permissions": "manage",
+            "isOwner": true,
+            "subscribedToActivityDigest": false,
+            "userId": "072e3d48-e541-4d41-97ae-c14ea3d69ddb",
+            "pubId": "db6fdb17-7ab3-41be-899a-1c54277b965a",
+            "collectionId": null,
+            "communityId": null,
+            "organizationId": null,
+            "createdAt": "2024-04-05T22:15:34.016Z",
+            "updatedAt": "2024-04-05T22:15:34.016Z"
+        }
+    ],
+    "draft": {
+        "id": "b095cbf2-5b0f-425b-b963-77e63e19b6a9",
+        "latestKeyAt": "2024-05-16T16:05:04.562Z",
+        "firebasePath": "drafts/draft-b095cbf2-5b0f-425b-b963-77e63e19b6a9",
+        "createdAt": "2024-04-05T22:15:33.962Z",
+        "updatedAt": "2024-05-23T10:50:26.374Z"
+    },
+    "crossrefDepositRecord": {
+        "id": "add19540-2ac7-44b7-9650-83fc55e4e45e",
+        "depositJson": {
+            "dois": {
+                "pub": "10.21428/d28e8e57.db6fdb17",
+                "community": "10.21428/d28e8e57"
+            },
+            "deposit": {
+                "doi_batch": {
+                    "body": {
+                        "peer_review": {
+                            "titles": {
+                                "title": "Evaluation Summary and Metrics: 'The Benefits and Costs of Guest Worker Programs: Experimental Evidence from the India-UAE Migration Corridor'"
+                            },
+                            "doi_data": {
+                                "doi": "10.21428/d28e8e57.db6fdb17",
+                                "resource": {
+                                    "#text": "https://unjournal.pubpub.org/pub/guest"
+                                },
+                                "timestamp": 1715877094438
+                            },
+                            "@language": "en",
+                            "@xmlns:rel": "http://www.crossref.org/relations.xsd",
+                            "rel:program": {
+                                "@name": "relations",
+                                "rel:related_item": [
+                                    {
+                                        "rel:inter_work_relation": {
+                                            "#text": "https://unjournal.pubpub.org/pub/guesteval1",
+                                            "@identifier-type": "uri",
+                                            "@relationship-type": "isSupplementedBy"
+                                        }
+                                    },
+                                    {
+                                        "rel:inter_work_relation": {
+                                            "#text": "10.3386/w31354",
+                                            "@identifier-type": "doi",
+                                            "@relationship-type": "isReviewOf"
+                                        }
+                                    },
+                                    {
+                                        "rel:inter_work_relation": {
+                                            "#text": "https://unjournal.pubpub.org/pub/guesteval2",
+                                            "@identifier-type": "uri",
+                                            "@relationship-type": "isSupplementedBy"
+                                        }
+                                    },
+                                    {
+                                        "rel:inter_work_relation": {
+                                            "#text": "https://unjournal.pubpub.org/pub/guesteval2",
+                                            "@identifier-type": "uri",
+                                            "@relationship-type": "isSupplementedBy"
+                                        }
+                                    }
+                                ]
+                            },
+                            "review_date": {
+                                "day": "15",
+                                "year": "2024",
+                                "month": "05"
+                            },
+                            "contributors": {
+                                "person_name": [
+                                    {
+                                        "surname": "Anonymous",
+                                        "@sequence": "first",
+                                        "given_name": "Anonymous",
+                                        "@contributor_role": "author"
+                                    },
+                                    {
+                                        "ORCID": "https://orcid.org/0000-0002-7707-453X",
+                                        "surname": "Tagat",
+                                        "@sequence": "additional",
+                                        "given_name": "Anirudh",
+                                        "affiliation": "Monk Prayogshala",
+                                        "@contributor_role": "author"
+                                    },
+                                    {
+                                        "ORCID": "https://orcid.org/0000-0002-5055-3995",
+                                        "surname": "Orkoh",
+                                        "@sequence": "additional",
+                                        "given_name": "Emmanuel",
+                                        "affiliation": "Uppsala University Nordic Africa Institute",
+                                        "@contributor_role": "author"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "head": {
+                        "depositor": {
+                            "email_address": "crossref@pubpub.org",
+                            "depositor_name": "PubPub"
+                        },
+                        "timestamp": 1715877094438,
+                        "registrant": "PubPub",
+                        "doi_batch_id": "1715877094438_d28e8e57"
+                    },
+                    "@xmlns": "http://www.crossref.org/schema/4.4.1",
+                    "@version": "4.4.1",
+                    "@xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
+                    "@xsi:schemaLocation": "http://www.crossref.org/schema/4.4.1 http://www.crossref.org/schema/deposit/crossref4.4.1.xsd"
+                }
+            },
+            "timestamp": 1715877094438
+        },
+        "createdAt": "2024-05-16T16:31:35.365Z",
+        "updatedAt": "2024-05-16T16:31:35.365Z"
+    },
+    "scopeSummary": {
+        "id": "0b512299-34d6-48b9-95c5-abee7cac01bd",
+        "collections": 0,
+        "pubs": 0,
+        "discussions": 0,
+        "reviews": 0,
+        "submissions": 0,
+        "createdAt": "2024-04-05T22:15:33.979Z",
+        "updatedAt": "2024-05-21T15:40:10.694Z"
+    },
+    "releases": [
+        {
+            "id": "bb358030-5dfd-484e-a837-ce6d9f33cbd7",
+            "noteContent": null,
+            "noteText": null,
+            "pubId": "db6fdb17-7ab3-41be-899a-1c54277b965a",
+            "userId": "37a457a9-4df7-4fd8-bbfd-baa72f0e2ab8",
+            "docId": "53cd77e7-2fcd-4ed5-9893-f2bc9a8099aa",
+            "historyKey": 1528,
+            "historyKeyMissing": false,
+            "createdAt": "2024-05-15T21:16:41.240Z",
+            "updatedAt": "2024-05-15T21:16:41.240Z"
+        },
+        {
+            "id": "356bc2f6-a054-4302-8841-ba475222187f",
+            "noteContent": null,
+            "noteText": null,
+            "pubId": "db6fdb17-7ab3-41be-899a-1c54277b965a",
+            "userId": "37a457a9-4df7-4fd8-bbfd-baa72f0e2ab8",
+            "docId": "c9eccda8-22e5-42dc-86b4-eeca334a3f2e",
+            "historyKey": 1555,
+            "historyKeyMissing": false,
+            "createdAt": "2024-05-16T16:05:43.051Z",
+            "updatedAt": "2024-05-16T16:05:43.051Z"
+        }
+    ],
+    "attributions": [
+        {
+            "id": "3cf972e4-e10c-4e5f-bc51-80987fe8f85f",
+            "name": null,
+            "avatar": null,
+            "title": null,
+            "order": 0.75,
+            "isAuthor": true,
+            "roles": [],
+            "affiliation": null,
+            "orcid": null,
+            "userId": "083b5e44-eb78-4cab-bae2-f59edde5242c",
+            "pubId": "db6fdb17-7ab3-41be-899a-1c54277b965a",
+            "createdAt": "2024-05-15T19:26:15.066Z",
+            "updatedAt": "2024-05-15T19:26:15.066Z",
+            "user": {
+                "id": "083b5e44-eb78-4cab-bae2-f59edde5242c",
+                "firstName": "Anonymous",
+                "lastName": "Anonymous",
+                "fullName": "Anonymous Anonymous",
+                "avatar": null,
+                "slug": "sihwa-park",
+                "initials": "AA",
+                "title": "",
+                "orcid": ""
+            }
+        },
+        {
+            "id": "79f4b66d-d1b8-4f73-b8e9-2c515df6c162",
+            "name": "Emmanuel Orkoh",
+            "avatar": null,
+            "title": null,
+            "order": 0.9375,
+            "isAuthor": true,
+            "roles": [],
+            "affiliation": "Uppsala University Nordic Africa Institute",
+            "orcid": "0000-0002-5055-3995",
+            "userId": null,
+            "pubId": "db6fdb17-7ab3-41be-899a-1c54277b965a",
+            "createdAt": "2024-05-16T16:03:11.365Z",
+            "updatedAt": "2024-05-16T16:04:39.236Z",
+            "user": {
+                "isShadowUser": true,
+                "id": "79f4b66d-d1b8-4f73-b8e9-2c515df6c162",
+                "initials": "EO",
+                "fullName": "Emmanuel Orkoh",
+                "firstName": "Emmanuel",
+                "lastName": "Orkoh",
+                "avatar": null,
+                "title": null,
+                "orcid": "0000-0002-5055-3995"
+            }
+        },
+        {
+            "id": "08b3f90c-17fd-430e-8903-a7d09b33b9d0",
+            "name": "Anirudh Tagat",
+            "avatar": null,
+            "title": null,
+            "order": 0.875,
+            "isAuthor": true,
+            "roles": [],
+            "affiliation": "Monk Prayogshala",
+            "orcid": "0000-0002-7707-453X",
+            "userId": null,
+            "pubId": "db6fdb17-7ab3-41be-899a-1c54277b965a",
+            "createdAt": "2024-05-16T16:02:17.429Z",
+            "updatedAt": "2024-05-16T16:04:48.495Z",
+            "user": {
+                "isShadowUser": true,
+                "id": "08b3f90c-17fd-430e-8903-a7d09b33b9d0",
+                "initials": "AT",
+                "fullName": "Anirudh Tagat",
+                "firstName": "Anirudh",
+                "lastName": "Tagat",
+                "avatar": null,
+                "title": null,
+                "orcid": "0000-0002-7707-453X"
+            }
+        }
+    ],
+    "reviews": [],
+    "collectionPubs": [
+        {
+            "id": "2720b5ad-6e26-4758-b56c-1e02b5fca267",
+            "pubId": "db6fdb17-7ab3-41be-899a-1c54277b965a",
+            "collectionId": "02bc1831-01ba-42b2-97ed-f669ba205d74",
+            "contextHint": null,
+            "rank": "yy",
+            "pubRank": "h",
+            "createdAt": "2024-04-26T23:52:02.074Z",
+            "updatedAt": "2024-04-26T23:52:02.074Z",
+            "collection": {
+                "id": "02bc1831-01ba-42b2-97ed-f669ba205d74",
+                "title": "Evaluation Summary and Metrics",
+                "slug": "evaluation-summary-and-metrics",
+                "avatar": null,
+                "isRestricted": true,
+                "isPublic": true,
+                "viewHash": "izx7llpn",
+                "editHash": "05vrwh0n",
+                "metadata": {},
+                "kind": "tag",
+                "doi": null,
+                "readNextPreviewSize": "choose-best",
+                "layout": {
+                    "blocks": [
+                        {
+                            "id": "g65czpxn",
+                            "type": "pubs",
+                            "content": {
+                                "sort": "collection-rank",
+                                "hideByline": true,
+                                "pubPreviewType": "minimal",
+                                "hideContributors": false
+                            }
+                        }
+                    ],
+                    "isNarrow": false
+                },
+                "layoutAllowsDuplicatePubs": false,
+                "pageId": null,
+                "communityId": "d28e8e57-7f59-486b-9395-b548158a27d6",
+                "scopeSummaryId": "894fb07f-d0c6-449d-b3d7-03ca23a466ae",
+                "crossrefDepositRecordId": null,
+                "createdAt": "2023-03-20T15:33:34.306Z",
+                "updatedAt": "2023-08-28T21:58:15.995Z",
+                "page": null,
+                "members": [],
+                "attributions": []
+            }
+        }
+    ],
+    "outboundEdges": [
+        {
+            "id": "1c4d22d7-34c8-4448-8628-e38e90cc3cb4",
+            "pubId": "db6fdb17-7ab3-41be-899a-1c54277b965a",
+            "externalPublicationId": null,
+            "targetPubId": "08665b9a-d3b8-4e1b-90d0-29d4acb37f46",
+            "relationType": "supplement",
+            "rank": "4",
+            "pubIsParent": true,
+            "approvedByTarget": true,
+            "createdAt": "2024-04-06T18:58:18.137Z",
+            "updatedAt": "2024-04-06T18:58:18.137Z",
+            "targetPub": {
+                "id": "08665b9a-d3b8-4e1b-90d0-29d4acb37f46",
+                "slug": "guesteval1",
+                "title": "Evaluation 1 of \u201cThe Benefits and Costs of Guest Worker Programs: Experimental Evidence from the India-UAE Migration Corridor\u201d for The Unjournal.",
+                "htmlTitle": "Evaluation 1 of \u201cThe Benefits and Costs of Guest Worker Programs: Experimental Evidence from the India-UAE Migration Corridor\u201d for The Unjournal.",
+                "description": "Evaluation of \u201cThe Benefits and Costs of Guest Worker Programs: Experimental Evidence from the India-UAE Migration Corridor\u201d for The Unjournal. Evaluator: Anonymous for now",
+                "htmlDescription": "Evaluation of \u201cThe Benefits and Costs of Guest Worker Programs: Experimental Evidence from the India-UAE Migration Corridor\u201d for The Unjournal. Evaluator: Anonymous for now",
+                "avatar": null,
+                "customPublishedAt": null,
+                "doi": null,
+                "labels": null,
+                "downloads": null,
+                "metadata": null,
+                "viewHash": "2rfogw6n",
+                "editHash": "edqz6ngo",
+                "reviewHash": "p3o5gebu",
+                "commentHash": "wllbgzln",
+                "draftId": "d6ec5ea7-1729-4ea4-8d5a-598b606af201",
+                "communityId": "d28e8e57-7f59-486b-9395-b548158a27d6",
+                "crossrefDepositRecordId": null,
+                "scopeSummaryId": "d936beda-31ed-4a13-8eff-79b2016380eb",
+                "createdAt": "2024-04-05T22:25:43.881Z",
+                "updatedAt": "2024-04-06T19:39:32.664Z",
+                "collectionPubs": [],
+                "releases": [
+                    {
+                        "id": "67fba75f-1adb-4659-9701-fbbcaa13c464",
+                        "noteContent": {
+                            "type": "doc",
+                            "attrs": {
+                                "meta": {},
+                                "suggestionId": null,
+                                "suggestionKind": null,
+                                "suggestionUserId": null,
+                                "suggestionTimestamp": null,
+                                "suggestionDiscussionId": null,
+                                "suggestionOriginalAttrs": null
+                            },
+                            "content": [
+                                {
+                                    "type": "paragraph",
+                                    "attrs": {
+                                        "id": "n5dineibbam",
+                                        "rtl": null,
+                                        "class": null,
+                                        "textAlign": null,
+                                        "suggestionId": null,
+                                        "suggestionKind": null,
+                                        "suggestionUserId": null,
+                                        "suggestionTimestamp": null,
+                                        "suggestionDiscussionId": null,
+                                        "suggestionOriginalAttrs": null
+                                    },
+                                    "content": [
+                                        {
+                                            "text": "will doublecheck that there was no summary given, and evaluator wanted anonymity",
+                                            "type": "text"
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        "noteText": "will doublecheck that there was no summary given, and evaluator wanted anonymity",
+                        "pubId": "08665b9a-d3b8-4e1b-90d0-29d4acb37f46",
+                        "userId": "37a457a9-4df7-4fd8-bbfd-baa72f0e2ab8",
+                        "docId": "32a2dc53-de6a-40c9-b4a3-f8b74b5e0008",
+                        "historyKey": 185,
+                        "historyKeyMissing": false,
+                        "createdAt": "2024-05-16T16:09:08.156Z",
+                        "updatedAt": "2024-05-16T16:09:08.156Z"
+                    }
+                ],
+                "attributions": [
+                    {
+                        "id": "e53f93ac-c96d-45cd-a25d-c0734f012d85",
+                        "name": null,
+                        "avatar": null,
+                        "title": null,
+                        "order": 0.5,
+                        "isAuthor": false,
+                        "roles": null,
+                        "affiliation": null,
+                        "orcid": null,
+                        "userId": "072e3d48-e541-4d41-97ae-c14ea3d69ddb",
+                        "pubId": "08665b9a-d3b8-4e1b-90d0-29d4acb37f46",
+                        "createdAt": "2024-04-05T22:25:43.928Z",
+                        "updatedAt": "2024-05-16T16:08:32.358Z",
+                        "user": {
+                            "id": "072e3d48-e541-4d41-97ae-c14ea3d69ddb",
+                            "firstName": "Unjournal Admin",
+                            "lastName": "(NA)",
+                            "fullName": "Unjournal Admin (NA)",
+                            "avatar": null,
+                            "slug": "unjournal-admin-na",
+                            "initials": "U(",
+                            "title": "Unjournal Admin account",
+                            "orcid": ""
+                        }
+                    },
+                    {
+                        "id": "ce48dfe2-fa20-4113-b32e-a68390fa257f",
+                        "name": null,
+                        "avatar": null,
+                        "title": null,
+                        "order": 0.75,
+                        "isAuthor": true,
+                        "roles": [],
+                        "affiliation": null,
+                        "orcid": null,
+                        "userId": "083b5e44-eb78-4cab-bae2-f59edde5242c",
+                        "pubId": "08665b9a-d3b8-4e1b-90d0-29d4acb37f46",
+                        "createdAt": "2024-05-16T16:08:30.116Z",
+                        "updatedAt": "2024-05-16T16:08:30.116Z",
+                        "user": {
+                            "id": "083b5e44-eb78-4cab-bae2-f59edde5242c",
+                            "firstName": "Anonymous",
+                            "lastName": "Anonymous",
+                            "fullName": "Anonymous Anonymous",
+                            "avatar": null,
+                            "slug": "sihwa-park",
+                            "initials": "AA",
+                            "title": "",
+                            "orcid": ""
+                        }
+                    }
+                ]
+            },
+            "externalPublication": null
+        },
+        {
+            "id": "a45306c7-d5b0-4fab-9f78-3ad51f0cfb4c",
+            "pubId": "db6fdb17-7ab3-41be-899a-1c54277b965a",
+            "externalPublicationId": "846bf380-b1e4-4d28-b39c-72b4c556df7a",
+            "targetPubId": null,
+            "relationType": "review",
+            "rank": "8",
+            "pubIsParent": false,
+            "approvedByTarget": false,
+            "createdAt": "2024-04-06T18:57:24.429Z",
+            "updatedAt": "2024-04-06T18:57:24.429Z",
+            "targetPub": null,
+            "externalPublication": {
+                "id": "846bf380-b1e4-4d28-b39c-72b4c556df7a",
+                "title": "The Benefits and Costs of Guest Worker Programs: Experimental Evidence from the India-UAE Migration Corridor",
+                "url": "https://www.nber.org/papers/w31354",
+                "contributors": [
+                    "Suresh Naidu",
+                    "Yaw Nyarko",
+                    "Shing-Yi Wang"
+                ],
+                "doi": "10.3386/w31354",
+                "description": "Founded in 1920, the NBER is a private, non-profit, non-partisan organization dedicated to conducting economic research and to disseminating research findings among academics, public policy makers, and business professionals.",
+                "avatar": "https://www.nber.org/sites/default/files/2022-06/NBER-FB-Share-Tile-1200.jpg",
+                "publicationDate": "2023-06-19T00:00:00.000Z",
+                "createdAt": "2024-04-06T18:57:24.425Z",
+                "updatedAt": "2024-04-06T18:57:24.425Z"
+            }
+        },
+        {
+            "id": "1e2e2f26-006d-4309-b975-0c2e097a10b3",
+            "pubId": "db6fdb17-7ab3-41be-899a-1c54277b965a",
+            "externalPublicationId": null,
+            "targetPubId": "433b7559-f83a-4f71-9689-4bba0d1f758f",
+            "relationType": "supplement",
+            "rank": "h",
+            "pubIsParent": true,
+            "approvedByTarget": true,
+            "createdAt": "2024-04-06T18:55:30.909Z",
+            "updatedAt": "2024-04-06T18:57:34.725Z",
+            "targetPub": {
+                "id": "433b7559-f83a-4f71-9689-4bba0d1f758f",
+                "slug": "guesteval2",
+                "title": "Evaluation 2 of \"The Benefits and Costs of Guest Worker Programs: Experimental Evidence from the India-UAE Migration Corridor\"",
+                "htmlTitle": "Evaluation 2 of \"The Benefits and Costs of Guest Worker Programs: Experimental Evidence from the India-UAE Migration Corridor\"",
+                "description": "Evaluation 2 of \"The Benefits and Costs of Guest Worker Programs: Experimental Evidence from the India-UAE Migration Corridor\" for The Unjournal. Evaluator: Anonymous ",
+                "htmlDescription": "Evaluation 2 of \"The Benefits and Costs of Guest Worker Programs: Experimental Evidence from the India-UAE Migration Corridor\" for The Unjournal. Evaluator: Anonymous ",
+                "avatar": null,
+                "customPublishedAt": null,
+                "doi": null,
+                "labels": null,
+                "downloads": null,
+                "metadata": null,
+                "viewHash": "cc1z7gu4",
+                "editHash": "swxm25g8",
+                "reviewHash": "lsc30xvi",
+                "commentHash": "xoxmuxxw",
+                "draftId": "cf3b0c6b-9666-4dee-ba79-6e4281723bb6",
+                "communityId": "d28e8e57-7f59-486b-9395-b548158a27d6",
+                "crossrefDepositRecordId": null,
+                "scopeSummaryId": "6ebd0da7-d017-4a88-9f05-2c2491f60225",
+                "createdAt": "2024-04-05T22:26:42.102Z",
+                "updatedAt": "2024-05-16T16:09:44.213Z",
+                "collectionPubs": [],
+                "releases": [
+                    {
+                        "id": "73f47032-5ff5-4115-95af-d55cc0859eb5",
+                        "noteContent": null,
+                        "noteText": null,
+                        "pubId": "433b7559-f83a-4f71-9689-4bba0d1f758f",
+                        "userId": "37a457a9-4df7-4fd8-bbfd-baa72f0e2ab8",
+                        "docId": "81bc4867-4631-452c-a92e-02a6ec083ac5",
+                        "historyKey": 477,
+                        "historyKeyMissing": false,
+                        "createdAt": "2024-05-16T16:30:58.034Z",
+                        "updatedAt": "2024-05-16T16:30:58.034Z"
+                    }
+                ],
+                "attributions": [
+                    {
+                        "id": "2b2cf3d0-a463-43a8-8436-6f52be29978b",
+                        "name": null,
+                        "avatar": null,
+                        "title": null,
+                        "order": 0.5,
+                        "isAuthor": false,
+                        "roles": null,
+                        "affiliation": null,
+                        "orcid": null,
+                        "userId": "072e3d48-e541-4d41-97ae-c14ea3d69ddb",
+                        "pubId": "433b7559-f83a-4f71-9689-4bba0d1f758f",
+                        "createdAt": "2024-04-05T22:26:42.166Z",
+                        "updatedAt": "2024-05-15T19:25:29.366Z",
+                        "user": {
+                            "id": "072e3d48-e541-4d41-97ae-c14ea3d69ddb",
+                            "firstName": "Unjournal Admin",
+                            "lastName": "(NA)",
+                            "fullName": "Unjournal Admin (NA)",
+                            "avatar": null,
+                            "slug": "unjournal-admin-na",
+                            "initials": "U(",
+                            "title": "Unjournal Admin account",
+                            "orcid": ""
+                        }
+                    },
+                    {
+                        "id": "2e4bd7a6-5d69-497e-b618-a90438c8ef21",
+                        "name": null,
+                        "avatar": null,
+                        "title": null,
+                        "order": 0.75,
+                        "isAuthor": true,
+                        "roles": [],
+                        "affiliation": null,
+                        "orcid": null,
+                        "userId": "083b5e44-eb78-4cab-bae2-f59edde5242c",
+                        "pubId": "433b7559-f83a-4f71-9689-4bba0d1f758f",
+                        "createdAt": "2024-05-15T19:25:38.423Z",
+                        "updatedAt": "2024-05-15T19:25:38.423Z",
+                        "user": {
+                            "id": "083b5e44-eb78-4cab-bae2-f59edde5242c",
+                            "firstName": "Anonymous",
+                            "lastName": "Anonymous",
+                            "fullName": "Anonymous Anonymous",
+                            "avatar": null,
+                            "slug": "sihwa-park",
+                            "initials": "AA",
+                            "title": "",
+                            "orcid": ""
+                        }
+                    }
+                ]
+            },
+            "externalPublication": null
+        }
+    ],
+    "inboundEdges": [
+        {
+            "id": "e99be148-d14a-45a4-a100-b67ef5612c3e",
+            "pubId": "433b7559-f83a-4f71-9689-4bba0d1f758f",
+            "externalPublicationId": null,
+            "targetPubId": "db6fdb17-7ab3-41be-899a-1c54277b965a",
+            "relationType": "supplement",
+            "rank": "h",
+            "pubIsParent": false,
+            "approvedByTarget": true,
+            "createdAt": "2024-04-06T18:55:03.689Z",
+            "updatedAt": "2024-04-06T18:55:03.689Z",
+            "pub": {
+                "id": "433b7559-f83a-4f71-9689-4bba0d1f758f",
+                "slug": "guesteval2",
+                "title": "Evaluation 2 of \"The Benefits and Costs of Guest Worker Programs: Experimental Evidence from the India-UAE Migration Corridor\"",
+                "htmlTitle": "Evaluation 2 of \"The Benefits and Costs of Guest Worker Programs: Experimental Evidence from the India-UAE Migration Corridor\"",
+                "description": "Evaluation 2 of \"The Benefits and Costs of Guest Worker Programs: Experimental Evidence from the India-UAE Migration Corridor\" for The Unjournal. Evaluator: Anonymous ",
+                "htmlDescription": "Evaluation 2 of \"The Benefits and Costs of Guest Worker Programs: Experimental Evidence from the India-UAE Migration Corridor\" for The Unjournal. Evaluator: Anonymous ",
+                "avatar": null,
+                "customPublishedAt": null,
+                "doi": null,
+                "labels": null,
+                "downloads": null,
+                "metadata": null,
+                "viewHash": "cc1z7gu4",
+                "editHash": "swxm25g8",
+                "reviewHash": "lsc30xvi",
+                "commentHash": "xoxmuxxw",
+                "draftId": "cf3b0c6b-9666-4dee-ba79-6e4281723bb6",
+                "communityId": "d28e8e57-7f59-486b-9395-b548158a27d6",
+                "crossrefDepositRecordId": null,
+                "scopeSummaryId": "6ebd0da7-d017-4a88-9f05-2c2491f60225",
+                "createdAt": "2024-04-05T22:26:42.102Z",
+                "updatedAt": "2024-05-16T16:09:44.213Z",
+                "collectionPubs": [],
+                "releases": [
+                    {
+                        "id": "73f47032-5ff5-4115-95af-d55cc0859eb5",
+                        "noteContent": null,
+                        "noteText": null,
+                        "pubId": "433b7559-f83a-4f71-9689-4bba0d1f758f",
+                        "userId": "37a457a9-4df7-4fd8-bbfd-baa72f0e2ab8",
+                        "docId": "81bc4867-4631-452c-a92e-02a6ec083ac5",
+                        "historyKey": 477,
+                        "historyKeyMissing": false,
+                        "createdAt": "2024-05-16T16:30:58.034Z",
+                        "updatedAt": "2024-05-16T16:30:58.034Z"
+                    }
+                ],
+                "attributions": [
+                    {
+                        "id": "2b2cf3d0-a463-43a8-8436-6f52be29978b",
+                        "name": null,
+                        "avatar": null,
+                        "title": null,
+                        "order": 0.5,
+                        "isAuthor": false,
+                        "roles": null,
+                        "affiliation": null,
+                        "orcid": null,
+                        "userId": "072e3d48-e541-4d41-97ae-c14ea3d69ddb",
+                        "pubId": "433b7559-f83a-4f71-9689-4bba0d1f758f",
+                        "createdAt": "2024-04-05T22:26:42.166Z",
+                        "updatedAt": "2024-05-15T19:25:29.366Z",
+                        "user": {
+                            "id": "072e3d48-e541-4d41-97ae-c14ea3d69ddb",
+                            "firstName": "Unjournal Admin",
+                            "lastName": "(NA)",
+                            "fullName": "Unjournal Admin (NA)",
+                            "avatar": null,
+                            "slug": "unjournal-admin-na",
+                            "initials": "U(",
+                            "title": "Unjournal Admin account",
+                            "orcid": ""
+                        }
+                    },
+                    {
+                        "id": "2e4bd7a6-5d69-497e-b618-a90438c8ef21",
+                        "name": null,
+                        "avatar": null,
+                        "title": null,
+                        "order": 0.75,
+                        "isAuthor": true,
+                        "roles": [],
+                        "affiliation": null,
+                        "orcid": null,
+                        "userId": "083b5e44-eb78-4cab-bae2-f59edde5242c",
+                        "pubId": "433b7559-f83a-4f71-9689-4bba0d1f758f",
+                        "createdAt": "2024-05-15T19:25:38.423Z",
+                        "updatedAt": "2024-05-15T19:25:38.423Z",
+                        "user": {
+                            "id": "083b5e44-eb78-4cab-bae2-f59edde5242c",
+                            "firstName": "Anonymous",
+                            "lastName": "Anonymous",
+                            "fullName": "Anonymous Anonymous",
+                            "avatar": null,
+                            "slug": "sihwa-park",
+                            "initials": "AA",
+                            "title": "",
+                            "orcid": ""
+                        }
+                    }
+                ]
+            },
+            "externalPublication": null
+        }
+    ],
+    "isRelease": false,
+    "releaseNumber": null
+}
