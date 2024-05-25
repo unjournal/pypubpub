@@ -1,13 +1,17 @@
 """ Tools to populate RePEc.org metadata file with Pubs on Pubpub.org"""
 
 
+
+from .. import Pubshelper_v6, Migratehelper_v6
+
+
 class RePEcPopulator:
     """ Class to populate RePEc.org metadata file with Pubs on Pubpub.org
         pubhelper is a Pubv6 instance
         inputdir contains already existing RePEc.org metadata files
         outputdir is where the new RePEc.org metadata files will be written
     """
-    def __init__(self, pubhelper, inputdir, outputdir, blacklist, format_suffix=".rdf", file_options={"one_file":True }): 
+    def __init__(self, pubhelper:Pubshelper_v6, inputdir, outputdir, blacklist, format_suffix=".rdf", file_options={"one_file":True }): 
         self.pubhelper = pubhelper
 
         self.inputdir = inputdir
@@ -24,12 +28,38 @@ class RePEcPopulator:
             }
         }
 
-    def buildFile():
+    def build_metadata_file(self):
         """ Build a RePEc.org metadata file for a Pub"""
         # get list of pubpub id, url, tite, description, authors
+        self.pubs_all = self.pubhelper.get_many_pubs()
         # todo: remove blacklisted items
         # go thru list and make metadata object
+        self.pubs_metadata=[]
         # write metadata object to file(s)
+        with open(f"{self.outputdir}/evalX.rdf", "w") as f:
+            for pub in self.pubs_all['pubsById'].values():
+                authors = self.parse_pub_authors(pub)
+                m = self.buildMetadata(
+                            id=pub['id'], 
+                            url=f"""{self.pubhelper.community_url}/pub/{pub['slug']}""",
+                            pdf_url=None,
+                            pub=None,
+                            title=pub['title'],
+                            description=pub['description'],
+                            authors=authors,
+                            doi=pub['doi'],
+                            creation_date=pub['createdAt'][:10],
+                            jel_codes=None,
+                            handle=self.build_handle(pub),
+                            number=self.number_counter(pub['createdAt'][:4]),
+                            abstract=pub['description'],
+                            # publication_status=pub1['publicationStatus'],
+
+                )
+                self.pubs_metadata.append(m)
+                f.write(m)
+                f.write("\n\n")
+        return self.pubs_metadata
 
     redif_paper_template = """Template-Type: ReDIF-Paper 1.0
 Author-Name: Gavin Taylor
@@ -96,16 +126,22 @@ File-Format: text/html
     @staticmethod
     def build_handle(pub,  ) -> str:
         handle = f"RePEc:bjn:evalua:{pub['slug']}"
-        pass
+        return handle
 
-    def number_scheme(self, year, mark_used=True):
-        """ Build the number scheme for a RePEc.org metadata object for a Pub"""
+    def number_counter(self, year, mark_used=True):
+        """ Build the number scheme for a RePEc.org metadata object for a Pub. Single digit is zero padded"""
         if year in self.numbering_counter:
             n = self.numbering_counter[year] 
         else: 
             n = self.numbering_counter[year] = 1
-        return str(n).zfill(2)
+        if mark_used:
+            self.numbering_counter[year] = self.numbering_counter[year] + 1
+        return f"{str(year)}-{str(n).zfill(2)}"
     
-    def mark_used_number(self, year, number):
-        """ Mark a number as used in the numbering scheme for a RePEc.org metadata object for a Pub"""
-        self.numbering_counter[year] = self.numbering_counter[year] + 1
+
+
+from datetime import datetime
+def get_time_string() -> str:
+    now = datetime.now()
+    return now.strftime("%H_%M_%S")
+

@@ -120,6 +120,21 @@ def test_make_metadata():
     # pub_helper.logout()
 
 
+def test_make_metadata_file():
+    pub_helper=Pubshelper_v6(
+    community_url=community_url,
+    community_id=community_id,
+    password=password,
+    email=email
+    )
+    repec_helper = repec.RePEcPopulator(pubhelper=pub_helper, inputdir=None, outputdir=os.path.realpath('.'), blacklist=None)
+    h=repec_helper.build_metadata_file()
+
+    print("metadata : \n")
+    print(h)
+    assert(h)
+
+
 
 def XXtest_create_batch_pubs(pubhelperv6,migratehelperv6):
     """ test to create a batch of 3 pubs and then do cleanup and delete the batch of pubs"""
