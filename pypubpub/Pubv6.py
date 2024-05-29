@@ -50,7 +50,7 @@ class Pubshelper_v6:
 
     def login(self):
         print("email ::", self.email)
-        print("password ", self.password[:2], "..XX..", self.password[:-2])
+        print("password ", self.password[:2], "..XX..", self.password[-2:])
         k = keccak.new(digest_bits=512)
         k.update(self.password.encode())
         response = self.requests.post(
