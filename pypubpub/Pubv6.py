@@ -273,7 +273,7 @@ class Pubshelper_v6:
         return response
 
 
-    def get_many_pubs(self, limit = 50, offset = 0, ordering= {'field': 'updatedDate', 'direction': 'DESC'}, collection_ids=None, pub_ids=None):
+    def get_many_pubs(self, limit = 200, offset = 0, ordering= {'field': 'updatedDate', 'direction': 'DESC'}, collection_ids=None, pub_ids=None):
 
         response = self.authed_request(
             'pubs/many',

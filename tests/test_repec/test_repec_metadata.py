@@ -130,8 +130,8 @@ def test_make_metadata_file():
     repec_helper = repec.RePEcPopulator(pubhelper=pub_helper, inputdir=None, outputdir=os.path.realpath('.'), blacklist=None)
     h=repec_helper.build_metadata_file()
 
-    print("metadata : \n")
-    print(h)
+    print("metadata len: \n")
+    print(len(h))
     assert(h)
 
 

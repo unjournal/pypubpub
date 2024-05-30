@@ -2,6 +2,7 @@ import random
 import re
 import string
 import time
+from datetime import datetime
 import traceback
 
 import nltk
@@ -32,6 +33,10 @@ def retry(sleep=2, retry=3):
 
 def generate_random_number_string(length):
     return ''.join(random.choice(string.digits) for _ in range(length))
+
+def get_time_string() -> str:
+    now = datetime.now()
+    return now.strftime("%H_%M_%S")
 
 def isMaybePubId(t:str):
     if(not t): return False
