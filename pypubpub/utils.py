@@ -1,6 +1,8 @@
 import random
+import re
 import string
 import time
+from datetime import datetime
 import traceback
 
 import nltk
@@ -32,6 +34,20 @@ def retry(sleep=2, retry=3):
 def generate_random_number_string(length):
     return ''.join(random.choice(string.digits) for _ in range(length))
 
+def get_time_string() -> str:
+    now = datetime.now()
+    return now.strftime("%H_%M_%S")
+
+def isMaybePubId(t:str):
+    if(not t): return False
+    t2 = re.sub(r"\s+|-","", t )
+    if(not len(t2)==32):
+        return False
+    t3 = re.sub(r"[a-f0-9]", "", t2.casefold())
+    if(len(t3)==0):
+        return True
+    else:
+        return False
 
 
 # Download stop words if not already downloaded

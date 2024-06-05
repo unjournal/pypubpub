@@ -51,7 +51,7 @@ def test_create_eval_package():
         #     "id": "",
         #     "name": "Jim Smith",
         # },ww
-        evals=[
+        evaluations=[
             {"author":{
                 "id": "1da15791-f488-4371-bcdb-009e054881f3",
                 "name": "Nesim Sssss",
@@ -65,8 +65,8 @@ def test_create_eval_package():
         verbose=True,
         # autorun=True
     )
-    assert(h)
-    print("h:", h)
+    assert(evaluationPackage_001)
+    # print("h:", h)
 
 
 @pytest.fixture
