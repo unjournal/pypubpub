@@ -18,6 +18,31 @@ Coda task: [Work w/ PubPub API](https://coda.io/d/_dOyXJoZ6imx#All-unfinished-cu
 
 See subtasks within
 
+## Folders and content
+
+pypubpub: the actual code adapting the api to do operations
+
+tests: trying it out
+
+production_work: actual work for real on the pubpub V6 content. Keeping track of what was done
+
+repec_rdfs: rdf files created to add to repec (but how did we create them again?)
+
+
+### Scratch work on fixes
+
+https://testabcd123456789.pubpub.org/pub/nudgesincreasewelfare6648/draft
+
+- Need quotes around paper title (fancy -- replace quotation marks in title with single quotes)
+
+- Need to be able to specify multiple authors
+    - for evaluation summary this is evaluator 1, evaluator 2, ..., eval. manager 1 (eval. manager 2)
+
+- Evaluations
+    - title should include the evaluation number... 'evaluation 1 of [papertitle]'
+    - connection ... it should also be listed as 'review of the ' [original research]
+
+
 
 ## Scratch work and notes
 
