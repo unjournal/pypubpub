@@ -718,7 +718,6 @@ class record_pub_conf():
     community_id:str
     community_url:str
 
-from tests.conf_settings import email, password, community_id, community_url
 
 class EvaluationPackage():
     """
@@ -758,6 +757,10 @@ class EvaluationPackage():
             evaluation_manager_author:str|dict|int, 
             evaluations:list,
             config:record_pub_conf=None,
+            email:str=None, 
+            password:str=None, 
+            community_id:str=None, 
+            community_url:str=None,
             url:str=None,
             title:str=None,
             doi_primary_truth=True,
@@ -768,6 +771,11 @@ class EvaluationPackage():
         self.evaluation_manager_author = evaluation_manager_author
         self.evaluations_input = evaluations
         self.config = config
+        self.email = email
+        self.password = password
+        self.community_id = community_id
+        self.community_url = community_url 
+
         self.url=url
         self.title=title
         self.doi_primary_truth = doi_primary_truth
@@ -789,14 +797,8 @@ class EvaluationPackage():
 
     def init_conf_setting(self):
         if(not self.config):
-            # from collections import namedtuple
-            
-            self.config = record_pub_conf(email, password, community_id, community_url)
-            # self.config.email = email
-            # self.config.password = password
-            # self.config.community_id = community_id
-            # self.config.community_url = community_url
-            return self
+            self.config = record_pub_conf(self.email, self.password, self.community_id, self.community_url)
+            return self.config
         
     def init_login(self):
         self.pubshelper = Pubshelper_v6(**self.config.__dict__)#//(community_url=self.community_url, community_id=self.community_id, email=self.config.email, password=self.config.password)
@@ -804,7 +806,7 @@ class EvaluationPackage():
         self.migratehelper = Migratehelper_v6(self.pubshelper)
 
     def print_conf(self):
-        print("print_conf ______ ")
+        print("configuration conf :: ______ ")
         g=[f"{k}:{v}" for k,v in self.config.__dict__.items() if k in ['email',  'community_id', 'community_url']]
         print(g)
 
@@ -1010,6 +1012,12 @@ class EvaluationPackage():
             return None #todo: implemenet id lookup by name
 
    
+
+
+"""
+Example usage:
+
+
 # time saver:
 #  
 # has to also make summary metrics
@@ -1044,7 +1052,7 @@ EvaluationPackage(
 )
 
 
-
+ 
 EvaluationPackage(
     doi="10.1038/s41586-021-03402-5", #todo: for default doi put in a base Unjournal Pubpub doi such as the template 
     evaluation_manager_author="111-111111",
@@ -1065,3 +1073,4 @@ EvaluationPackage(
     ],
     autorun=False
 )
+""" 

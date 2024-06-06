@@ -7,7 +7,7 @@ import traceback
 
 import nltk
 nltk.download('punkt') #don't worry: download check if previously downloaded into the environment
-# nltk.download('stopwords')
+nltk.download('stopwords')
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from slugify import slugify  #python-slugify package
