@@ -373,6 +373,45 @@ class Pubshelper_v6:
     def getPub(self, pub_id):
         return self.get_many_pubs(pub_ids=[pub_id])
 
+    
+    def get_pub_as_resource(self, pubId):
+        """Get pub as a resource
+            see: https://www.pubpub.org/apiDocs#/paths/api-pubs-pubId--resource/get
+        """
+        return self.authed_request(
+            f'pubs/{pubId}/resource',
+            'GET'
+        )
+        
+    def get_pub_text(self, pubId):
+        """Get text of a pub
+            see: https://www.pubpub.org/apiDocs#/paths/api-pubs-pubId--text/get
+        """
+        return self.authed_request(
+            f'pubs/{pubId}/text',
+            'GET'
+            )
+
+    def replace_pub_text(self, pubId, content:list[dict], attributes:dict,replace_method="replace", publishRelease=False):
+        """Replace the text of a pub
+            see: https://www.pubpub.org/apiDocs#/paths/api-pubs-pubId--text/put
+        """
+        return self.authed_request(
+            path='pubs/{pubId}/text',
+            method='PUT',
+            body={
+            "doc": {
+                "type": "doc",
+                "attrs": attributes,
+                "content": [None]
+            },
+            "clientID": "api",
+            "publishRelease": False,
+            "method": "replace"
+        }
+            )
+
+
     def print_authors_table(self, limit=100, page=1)->list:
         """assumes all members could be authors"""
         authors= self.get_members(limit=limit)
@@ -767,7 +806,7 @@ class EvaluationPackage():
     def print_conf(self):
         print("print_conf ______ ")
         g=[f"{k}:{v}" for k,v in self.config.__dict__.items() if k in ['email',  'community_id', 'community_url']]
-        print(self.config)
+        print(g)
 
     def connect_papers(self):
         pass

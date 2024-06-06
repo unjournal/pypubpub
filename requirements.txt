@@ -14,3 +14,22 @@ setuptools @ file:///private/tmp/python-setuptools-20231224-4701-qr2dx8/setuptoo
 tomli_w==1.0.0
 urllib3==2.2.1
 wheel @ file:///usr/local/Cellar/python%403.12/3.12.2_1/libexec/wheel-0.42.0-py3-none-any.whl#sha256=5f1ca525bef7466225922019d72cb06a9e91cd3ff807ddd4be1acb84655e5107
+bibtexparser==1.4.1
+certifi==2024.2.2
+charset-normalizer==3.3.2
+click==8.1.7
+idna==3.7
+iniconfig==2.0.0
+joblib==1.4.2
+nltk==3.8.1
+packaging==24.0
+pluggy==1.4.0
+pycryptodome==3.20.0
+pyparsing==3.1.2
+pytest==8.1.1
+python-slugify==8.0.4
+regex==2024.4.28
+requests==2.31.0
+text-unidecode==1.3
+tqdm==4.66.4
+urllib3==2.2.1
