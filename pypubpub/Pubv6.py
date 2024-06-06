@@ -798,6 +798,11 @@ class EvaluationPackage():
     def init_conf_setting(self):
         if(not self.config):
             self.config = record_pub_conf(self.email, self.password, self.community_id, self.community_url)
+            # todo: remove workaround for D's machine
+            self.config.email = self.email
+            self.config.password = self.password
+            self.config.community_id = self.community_id
+            self.config.community_url = self.community_url
             return self.config
         
     def init_login(self):
