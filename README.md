@@ -12,13 +12,37 @@
 - Also to build metadata files for RePEc
 - Enable other feeds and updates (e.g., evaluation data reporting)
 
-3. Usage: See the 'tests/' directory. The requirements for access are Pubpub information: community_id, community_url, email, password. To find out Pubpub Ids such as the community_id see the FAQ at: https://github.com/pubpub/sdk?tab=readme-ov-file#faq , which recommends the PubPub ID Finder:  https://pubpub.tefkah.com/
-
 ## Project management
 
 Coda task: [Work w/ PubPub API](https://coda.io/d/_dOyXJoZ6imx#All-unfinished-current-Tasks_tuXFw/r159&view=modal)
 
 See subtasks within
+
+## Folders and content
+
+pypubpub: the actual code adapting the api to do operations
+
+tests: trying it out
+
+Moved to https://github.com/daaronr/unjournalpubpub_production -- production_work: actual work for real on the pubpub V6 content. Keeping track of what was done
+
+repec_rdfs: rdf files created to add to repec (but how did we create them again?)
+
+notebooks: Work from Google collab
+
+### Scratch work on fixes
+
+https://testabcd123456789.pubpub.org/pub/nudgesincreasewelfare6648/draft
+
+- Need quotes around paper title (fancy -- replace quotation marks in title with single quotes)
+
+- Need to be able to specify multiple authors
+    - for evaluation summary this is evaluator 1, evaluator 2, ..., eval. manager 1 (eval. manager 2)
+
+- Evaluations
+    - title should include the evaluation number... 'evaluation 1 of [papertitle]'
+    - connection ... it should also be listed as 'review of the ' [original research]
+
 
 
 ## Scratch work and notes
@@ -26,12 +50,5 @@ See subtasks within
 https://colab.research.google.com/drive/15gSHFLqHubhtCJH-uW5z5R9g6I-57-th#scrollTo=xBnL02vEg6l0
 
 https://colab.research.google.com/drive/1kj9njUpJkJ6hAxrLaUi4EYeZu0u9L1O_#scrollTo=tVSbFxNISAEG
-- shows SDK usage in notebook 
-- also saved as a gist: https://colab.research.google.com/gist/Log-of-e/c552b36686f55bfdf7c8ce60d8a00f70/v6-v7-process-and-automation.ipynb, https://gist.github.com/Log-of-e/c552b36686f55bfdf7c8ce60d8a00f70#comments
 
 https://docs.google.com/document/d/1F9w46tN3u8eeE8f5iTi543eDxAf9BTJ1OXJgxDHtPsw/edit#heading=h.57ljlv1pdkue
-
-
-
-
-
