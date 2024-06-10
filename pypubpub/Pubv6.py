@@ -750,12 +750,37 @@ class EvaluationPackage():
         1. The first entry is just a string, and it will used as the author id for the first pub.
         2. The second entry only specifies the author id, and it will be used as the author id for the second pub.
         3 - 4. The third and fourth entries are empty dicts, and they will be used to create the third and fourth pubs, with no author. The author will need to be added later.
-          """
+
+        Parameters
+        ----------   
+        doi : str, optional
+            The doi of the parent paper
+        url : str, optional
+            The url of the parent paper. If doi is not provided, this will be used to 1) point to parent paper and 2)look up the parent paper metadata.
+        evaluation_mananger_author : str, optional
+            The author id of the evaluation manager. This will be used to create the evaluation summary pub.
+        evaluations : list of dicts, optional
+            A list evaluations to create. For each evaluation enter a dict, each specifying properties for a pub. To create a placeholder pub without author, use an empty dict. To create a pub with an author, use a dict with an `author` key. For `author` an id can be specified. If the author is not registered with pubpub a string of a name can be specified.
+        config : record_pub_conf, optional
+            contains login information for pubpub. email, password, community_id, community_url. if not pass as an argument then email, password, community_id, and community_url must be passed as arguments.
+        email : str, optional
+        password: str, optional
+        community_id: str, optional
+        community_url: str, optional
+        title: str, optional
+            currently not used
+        doi_primary_truth: bool, optional
+        autrun: bool, optional
+            default is True. When True, the process_run() method will be as part of initialization and instantiation immediately. If False, the process_run() method will not be called, and must be called later.
+        verbose: bool, optional
+            default is True. When True, some of the configuration will be printed to the console.
+            
+        """
     def __init__(
             self, 
-            doi:str|dict, 
-            evaluation_manager_author:str|dict|int, 
-            evaluations:list,
+            doi:str|dict = None, 
+            evaluation_manager_author:str|dict|int = None, 
+            evaluations:list = None,
             config:record_pub_conf=None,
             email:str=None, 
             password:str=None, 
