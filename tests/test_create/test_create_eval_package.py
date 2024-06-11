@@ -5,11 +5,11 @@ import pytest
 import requests
 from pypubpub import Pubshelper_v6, Migratehelper_v6
 
-from pypubpub.Pubv6 import EvaluationPackage
+from pypubpub.Pubv6 import EvaluationPackage, record_pub_conf
 from pypubpub.utils import generate_random_number_string, retry
 from tests.conf_settings import email, password, community_id, community_url
 
-
+# conf = record_pub_conf(email, password=)
 
 
 @pytest.fixture
@@ -62,6 +62,10 @@ def test_create_eval_package():
             }},
             {} #example of empty eval, where author not yet known
         ],
+        email=email,
+        password=password,
+        community_id=community_id,
+        community_url=community_url,
         verbose=True,
         # autorun=True
     )
