@@ -1,7 +1,7 @@
 
 """ Package to use Python3 to access data and metadata on Pubpub v6 and v7 """
 
-__version__ = "0.2"
+__version__ = "0.3"
 
 import requests
 import json
