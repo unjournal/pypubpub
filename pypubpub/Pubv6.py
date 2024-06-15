@@ -906,10 +906,10 @@ class EvaluationPackage():
         #lookup original
         # todo: look up original in pubpub, if not there, just link the first pub
         # doi, url = self.lookup_parent_paper
-        self.parentMetadata  = OrigPaperMetadata(doi=self.doi, url=self.url)
+        self.parentMetadata  = OrigPaperMetadata(doi=self.doi, url=self.url, title=self.title)
         self.parentMetadata.lookup()
-        a,b , title= self.parentMetadata.bibtex_metadata, self.parentMetadata.crossref_data, self.parentMetadata.title
-        if(self.doi and not(a or b)):
+        bib_meta,crossr_data , title= self.parentMetadata.bibtex_metadata, self.parentMetadata.crossref_data, self.parentMetadata.title
+        if(self.doi and not(bib_meta or crossr_data)):
             raise Exception("Unable to find by using doi")
         if(self.doi and not title):
             raise Exception("Unable to find title")
@@ -984,8 +984,11 @@ class EvaluationPackage():
             return pub
 
     def slugtitle(self, title=None):
-        title = title or self.parentMetadata.title
-        print('+slugtitle title:::', title)
+        print("+slugtitle self.parentMetadata.title:::", self.parentMetadata.title)
+        print("+slugtitle title:::", title)
+        title = title or self.parentMetadata.title or self.title
+        title = title if(title) else generate_random_number_string(4)
+        print('+2 slugtitle title:::', title)
         slug = generate_slug(title)+generate_random_number_string(4)
         print('+slugtitle slug:::', slug)
         return SlugTuple(slug=slug, title=title)
