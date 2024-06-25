@@ -12,7 +12,7 @@ import json
 from Crypto.Hash import keccak
 import bibtexparser
 import copy
-
+from utility import Titlemachine
 
 from pypubpub.utils import generate_random_number_string, generate_slug, isMaybePubId, retry #need hashed passwords for API
 
@@ -853,6 +853,7 @@ class EvaluationPackage():
             template_evaluation_community_url = "https://unjournal.pubpub.org",
             template_evaluation_url="https://unjournal.pubpub.org/pub/vag4d5h9",
             template_evaluation_text = None,
+            title_method_init=Titlemachine.title_method,
             autorun=True,
             verbose=True
             ):
@@ -868,6 +869,8 @@ class EvaluationPackage():
         self.url=url
         self.title=title
         self.doi_primary_truth = doi_primary_truth
+
+        self.title_method_init = title_method_init 
 
         self.template_ev_summary_id = template_ev_summary_id
         self.template_ev_summary_url = template_ev_summary_url
@@ -908,6 +911,8 @@ class EvaluationPackage():
         if(autorun):
             self.init_login()
             self.process_run()
+        else:
+            self.title_method = self.title_method_init(parent_title=self.title)
 
     def init_conf_setting(self):
         if(not self.config):
@@ -960,7 +965,7 @@ class EvaluationPackage():
             title_method=(lambda x: f"Evaluation Summary of {x}"),
         )
 
-        self.create_evaluation_pubs()
+        self.create_evaluation_pubs(title_method=self.title_method_init(parent_title= self.parentMetadata.title))
         self.link_evaluation_pubs()
         self.associate_authors_to_eval_summary()
         self.put_template_doc(targetPubId=self.eval_summ_pub['id'], template_id=self.template_ev_summary_id, community_id=self.template_evaluation_community_id, community_url=self.template_ev_summary_community_url)
@@ -991,7 +996,7 @@ class EvaluationPackage():
         self.pubshelper.connect_pub_to_external(srcPubId=mgr_pub['id'], title="Original Article", url=f"https://doi.org/{self.doi}", publicationDate=None, description="Original Article", doi=self.doi)
 
 
-    def create_base_pub(self, authors_ids:str|UserAttribution|list[UserAttribution|UserAttributeDict]=None, title_method=lambda x: f"Evaluation of {x}", slug_methodXX=None, description_methodXXX=None, eval_datXXXe=None)->dict: #todo : make more return types to properly check 
+    def create_base_pub(self, authors_ids:str|UserAttribution|list[UserAttribution|UserAttributeDict]=None, title_method=lambda x: f"Evaluation of {x}")->dict: #todo : make more return types to properly check 
         """Generic Reusable Evaluation Creation Method: Creates a pub and links it to the parent pub, and author"""
         slug = self.slugtitle().slug
         title = title_method(self.parentMetadata.title or self.title)
@@ -1028,7 +1033,7 @@ class EvaluationPackage():
         print('+slugtitle slug:::', slug)
         return SlugTuple(slug=slug, title=title)
 
-    def create_evaluation_pubs(self, set_author=True):
+    def create_evaluation_pubs(self, set_author=True, title_method=None):
         """Creates the evaluation pubs and links them to the original paper.
            By default the author is added to the Pub. This can be turned of by setting `set_author=False` 
         """
@@ -1036,7 +1041,7 @@ class EvaluationPackage():
             auth = self.author_id_from_eval(evaluation=evaluation, dict_output=True)
             eval_temp = self.create_base_pub(
                 authors_ids = auth.get('userId') if auth else None, #UserAttributeDict(userId=auth.get('userId'),  isAuthor=True),
-                title_method=(lambda x: f"Evaluation of {x}"),
+                title_method = title_method or self.title_method,
             )
             self.activePubs.append((eval_temp['id'] , eval_temp))
         return self.activePubs
