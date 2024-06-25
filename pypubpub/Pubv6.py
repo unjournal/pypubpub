@@ -11,6 +11,7 @@ import requests
 import json
 from Crypto.Hash import keccak
 import bibtexparser
+import copy
 
 
 from pypubpub.utils import generate_random_number_string, generate_slug, isMaybePubId, retry #need hashed passwords for API
@@ -437,20 +438,20 @@ class Pubshelper_v6:
             'GET'
             )
 
-    def replace_pub_text(self, pubId, attributes:dict, content:list[dict]=[None], replace_method="replace", publishRelease=False):
+    def replace_pub_text(self, pubId, attributes:dict, content:list[dict]=[None], doc:dict=None, replace_method="replace", publishRelease=False):
         """Replace the text of a pub
             see: https://www.pubpub.org/apiDocs#/paths/api-pubs-pubId--text/put
-        """
+        """        
         body={
-            "doc": {
-                "type": "doc",
-                "attrs": attributes,
-                "content": content
-            },
-            # "clientID": "api",
-            "publishRelease": publishRelease,
-            "method": replace_method
-        }
+                "doc": doc if doc else  {
+                    "type": "doc",
+                    "attrs": attributes,
+                    "content": content
+                },
+                # "clientID": "api",
+                "publishRelease": publishRelease,
+                "method": replace_method
+            }
         return self.authed_request(
             path=f'pubs/{pubId}/text',
             method='PUT',
@@ -470,6 +471,12 @@ class Pubshelper_v6:
             'GET'
             )
         return response
+
+    def search_pubpub_users(self, q:str):
+        """search for pubpub user ids"""
+        return self.authed_request(
+            path=f'search/users?q={q}',
+        )
 
     def sync_authors(self, limit=None, return_list=True):
         """WIP NOT YET:sync the local sqlite table with members of community
@@ -836,6 +843,16 @@ class EvaluationPackage():
             community_id:str=None, 
             community_url:str=None,
             doi_primary_truth=True,
+            template_ev_summary_id="561e0e75-2be7-492d-b5f4-986b4acaae83",
+            template_ev_summary_community_id="d28e8e57-7f59-486b-9395-b548158a27d6",
+            template_ev_summary_url = "https://unjournal.pubpub.org/pub/7s6czeed",
+            template_ev_summary_community_url = "https://unjournal.pubpub.org",
+            template_ev_summary_text = None,
+            template_evaluation_id="d630ba11-57a3-4ab3-a670-2ad5a621efbd",
+            template_evaluation_community_id="d28e8e57-7f59-486b-9395-b548158a27d6",
+            template_evaluation_community_url = "https://unjournal.pubpub.org",
+            template_evaluation_url="https://unjournal.pubpub.org/pub/vag4d5h9",
+            template_evaluation_text = None,
             autorun=True,
             verbose=True
             ):
@@ -851,6 +868,20 @@ class EvaluationPackage():
         self.url=url
         self.title=title
         self.doi_primary_truth = doi_primary_truth
+
+        self.template_ev_summary_id = template_ev_summary_id
+        self.template_ev_summary_url = template_ev_summary_url
+        self.template_ev_summary_community_id = template_ev_summary_community_id
+        self.template_ev_summary_community_url =  template_ev_summary_community_url #template_ev_summary_url.split('/')[2]
+        self.template_ev_summary_text = template_ev_summary_text
+
+
+        self.template_evaluation_id = template_evaluation_id
+        self.template_evaluation_url = template_evaluation_url
+        self.template_evaluation_community_id = template_evaluation_community_id
+        self.template_evaluation_community_url = template_evaluation_community_url #template_evaluation_url.split('/')[2]
+        self.template_evaluation_text = template_evaluation_text
+        self.template_evaluation_text = template_evaluation_text
 
         self.pubshelper = None
         self.migratehelper = None
@@ -932,6 +963,10 @@ class EvaluationPackage():
         self.create_evaluation_pubs()
         self.link_evaluation_pubs()
         self.associate_authors_to_eval_summary()
+        self.put_template_doc(targetPubId=self.eval_summ_pub['id'], template_id=self.template_ev_summary_id, community_id=self.template_evaluation_community_id, community_url=self.template_ev_summary_community_url)
+        for i, evaluation in self.activePubs:
+            self.put_template_doc(targetPubId=evaluation['id'], template_id=self.template_evaluation_id, community_id=self.template_evaluation_community_id, community_url=self.template_evaluation_community_url)
+
 
         
         if(self.eval_summ_pub):
@@ -1111,7 +1146,15 @@ class EvaluationPackage():
         a = {k:v for k,v in a.items() if v is not None}
         return a
 
-   
+    def put_template_doc(self, targetPubId, template_id, community_id, community_url, template_text=None):
+        """Puts a template document into a pub."""
+        templatepubpub = copy.deepcopy(self.pubshelper)
+        templatepubpub.community_id = community_id
+        templatepubpub.community_url = community_url
+        template = template_text if template_text else  templatepubpub.get_pub_text( pubId=template_id)
+        print('template :::: :: ::', template)
+        self.pubshelper.replace_pub_text( pubId=targetPubId, doc =template, attributes=None)
+
 
 
 """
