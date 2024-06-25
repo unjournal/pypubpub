@@ -12,7 +12,7 @@ import json
 from Crypto.Hash import keccak
 import bibtexparser
 import copy
-from utility import Titlemachine
+from .utility import Titlemachine
 
 from pypubpub.utils import generate_random_number_string, generate_slug, isMaybePubId, retry #need hashed passwords for API
 
