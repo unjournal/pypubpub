@@ -28,11 +28,15 @@ def backupV6(pubhelper:p1, output_dir=None, format='plain', one_file=True,  pubs
 
     with(open('pubs00.text', 'w')) as f:
         for p in pubs00['pubIds']:
-            d = pubhelper.downloadpubexport(p)
-            print(d)
             f.write(f'pubId: {p}\n')
             f.write(f'pub slug: {pubs00['pubsById'][p]['slug']}\n')
-            f.write(d)
+            try:
+                d = pubhelper.downloadpubexport(p)
+                print(d)
+                f.write(d)
+            except Exception as e:
+                f.write("ERROR: unable to download export")
+                f.write(str(e))
             f.write("\n\n")
     print("COMPLETE")
 
