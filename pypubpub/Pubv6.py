@@ -491,6 +491,7 @@ class Pubshelper_v6:
         if(http_response_format=='text'): return response.text
         if(http_response_format=='json'): return response.json()
         if(http_response_format=='raw'): return response.raw
+        if(http_response_format=='content'): return response.content
         return response
 
     def export_initiate(self, pubId, format="plain"):
