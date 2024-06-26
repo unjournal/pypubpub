@@ -15,6 +15,7 @@ import copy
 from .utility import Titlemachine
 
 from pypubpub.utils import generate_random_number_string, generate_slug, isMaybePubId, retry #need hashed passwords for API
+utils_retry=retry
 
 SlugTuple=namedtuple( 'evaluationslugtitle', 'slug title')
 bibtex_tuple = namedtuple('BibTeX', 'author title year month')
@@ -76,7 +77,7 @@ class Pubshelper_v6:
 
         self.logged_in = True
 
-    def authed_request(self, path, method='GET', body=None, options=None, additionalHeaders=None):
+    def authed_request(self, path, method='GET', body=None, options=None, additionalHeaders=None, format='json'):
 
             response = self.requests.request(
                 method,
@@ -99,8 +100,9 @@ class Pubshelper_v6:
                 print("method::", method)
                 print("body::", body)
                 response.raise_for_status()
-
-            return response.json()
+            if(format=='json'): return response.json()
+            if(format=='text'): return response.text
+            if(format=='raw'): return response
 
     def logout(self):
         response =  self.authed_request('logout', 'GET')
@@ -298,15 +300,16 @@ class Pubshelper_v6:
         return response
 
 
-    def get_many_pubs(self, limit = 200, offset = 0, ordering= {'field': 'updatedDate', 'direction': 'DESC'}, collection_ids=None, pub_ids=None):
+    def get_many_pubs(self, limit = 200, offset = 0, ordering= {'field': 'updatedDate', 'direction': 'DESC'}, collection_ids=None, pub_ids=None, pubOptions={}, alreadyFetchedPubIds=[]):
 
         response = self.authed_request(
             'pubs/many',
             'POST',
             {
-                'alreadyFetchedPubIds': [],
+                'alreadyFetchedPubIds': alreadyFetchedPubIds,
                 'pubOptions': {
                     'getCollections': True,
+                    **pubOptions
                 },
                 'query': {
                     'communityId': self.community_id,
@@ -458,6 +461,59 @@ class Pubshelper_v6:
             body=body
             )
 
+    def downloadpubexport(self, pubId, format="plain", http_response_format= 'text'):
+        """Download a pub export
+            first initiate export,
+            then poll worker task
+            then GET file at the download url shown in the worker task json:
+            ```
+             {
+                "id": "ff8e79dc-c12b-454e-a4fe-49460c9c3d88",
+                "isProcessing": false,
+                "error": null,
+                "output": {
+                    "url": "https://assets.pubpub.org/z3idtunr/eeddfc89-00e0-4e14-84b5-6290f9c6762f.txt"
+                }
+            }
+            ```
+        """
+        response = self.export_initiate(pubId, format)
+        url=None
+        print('export respon :: ', response)
+        if('url' in response):
+            url = response['url']
+        elif('taskId' in response):
+            task_id = response['taskId']
+            response = self.workertaskpoll(task_id, sleep=1, retry=10)
+            url = response['output']['url']
+
+        response = retry(2,6)(self.requests.request)(method='GET',url=url)
+        if(http_response_format=='text'): return response.text
+        if(http_response_format=='json'): return response.json()
+        if(http_response_format=='raw'): return response.raw
+        return response
+
+    def export_initiate(self, pubId, format="plain"):
+        """Initiate a pub export"""
+        return self.authed_request(
+            path='export',
+            method= 'POST',
+            body={ "pubId": pubId, "format": format , "communityId":self.community_id}
+        )
+    
+    
+    def workertaskpoll(self, task_id, sleep=1, retry=10):
+        return utils_retry(1, 10)(self.workertask)(task_id)
+
+    def workertask(self, task_id):
+        """Get worker task status"""
+        response = self.authed_request(path=f'workerTasks?workerTaskId={task_id}')
+        if(response['isProcessing']==False and not response['error']):
+            return response
+        elif(response['error']):
+            raise Exception(response['error'])
+        else:
+            raise Exception("worker task still processing")
 
     def print_authors_table(self, limit=100, page=1)->list:
         """assumes all members could be authors"""
