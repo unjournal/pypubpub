@@ -484,10 +484,10 @@ class Pubshelper_v6:
             url = response['url']
         elif('taskId' in response):
             task_id = response['taskId']
-            response = self.workertaskpoll(task_id, sleep=1, retry=10)
+            response = self.workertaskpoll(task_id, sleep=5, retry=15)
             url = response['output']['url']
 
-        response = retry(2,6)(self.requests.request)(method='GET',url=url)
+        response = retry(5,15)(self.requests.request)(method='GET',url=url)
         if(http_response_format=='text'): return response.text
         if(http_response_format=='json'): return response.json()
         if(http_response_format=='raw'): return response.raw
