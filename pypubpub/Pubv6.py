@@ -444,7 +444,7 @@ class Pubshelper_v6:
 
         for chunk in chunks:
             x = self.helper_delete_n( chunk, pubsById=pubsById)
-            result_from_deletes.append(x)
+            result_from_deletes += x
         return result_from_deletes
 
 
@@ -516,7 +516,7 @@ class Pubshelper_v6:
         pubs00 = self.get_many_pubs(limit=limit,offset=offset,ordering=ordering,isReleased=isReleased,collection_ids=collection_ids,pub_ids=pub_ids,alreadyFetchedPubIds=alreadyFetchedPubIds,term=term,relatedUserIds=relatedUserIds)
         if(dontDelete):
             return pubs00
-        return self.batch_delete(*pubs00)
+        return self.batch_delete(pub_ids=pubs00['pubIds'], pubsById=pubs00['pubsById'])
 
     def getPub(self, pub_id):
         return self.get_many_pubs(pub_ids=[pub_id])

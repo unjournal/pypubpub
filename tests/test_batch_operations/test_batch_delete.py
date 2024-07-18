@@ -95,17 +95,13 @@ def test_delete_batch_pubs(pubhelperv6,migratehelperv6):
 def test_search_delete_preview_batch_pubs(pubhelperv6,migratehelperv6):
     """ test to create and then search for a batch of pubs and then do a preview (dontdelete=True) batch delete"""
     pubs_slugs=[]
+    title_prefix = f"{generate_random_number_string(3)}: Created to be searched, found, and preview (NOT) deleted"
     for i in range(12):
         slugger = "test-" + generate_random_number_string(10)
-        pubs_slugs.append({"slug":slugger, "title":f"Created to be searched, found, and preview (NOT) deleted {slugger}", "description":slugger})
+        pubs_slugs.append({"slug":slugger, "title":f"{title_prefix}", "description":"{slugger}"})
     pubs_batch = migratehelperv6.createPubs(pubs_slugs)
     time.sleep(5)
-    pubs_check = pubhelperv6.get_many_pubs(pub_ids = pubs_batch["createdPubIds"] )
-    assert len(pubs_check) == len(pubs_slugs)
-    pubs_batch['createdPubIds'].sort()
-    pubs_check["pubIds"].sort()
-    assert pubs_batch['createdPubIds'] == pubs_check["pubIds"]
-    preview_deletions = pubhelperv6.batch_search_delete(term="Created to be searched, found, and preview (NOT) deleted")
+    preview_deletions = pubhelperv6.batch_search_delete(term=title_prefix)
     assert len(preview_deletions["pubIds"]) == len(pubs_slugs)
     pubs_check = pubhelperv6.get_many_pubs(pub_ids = pubs_batch["createdPubIds"] )
     assert len(pubs_check["pubIds"]) == len(pubs_slugs)
@@ -114,18 +110,14 @@ def test_search_delete_preview_batch_pubs(pubhelperv6,migratehelperv6):
 def test_search_delete_batch_pubs(pubhelperv6,migratehelperv6):
     """ test to create and then search for a batch of pubs and then do a  (dontdelete=False) batch delete"""
     pubs_slugs=[]
+    title_prefix = f"{generate_random_number_string(3)}: Created to be searched, found, and preview (NOT) deleted"
     for i in range(12):
         slugger = "test-" + generate_random_number_string(10)
-        pubs_slugs.append({"slug":slugger, "title":f"Created to be searched, found, and deleted {slugger}", "description":slugger})
+        pubs_slugs.append({"slug":slugger, "title":f"{title_prefix}", "description":"{slugger}"})
     pubs_batch = migratehelperv6.createPubs(pubs_slugs)
     time.sleep(5)
-    pubs_check = pubhelperv6.get_many_pubs(pub_ids = pubs_batch["createdPubIds"] )
-    assert len(pubs_check) == len(pubs_slugs)
-    pubs_batch['createdPubIds'].sort()
-    pubs_check["pubIds"].sort()
-    assert pubs_batch['createdPubIds'] == pubs_check["pubIds"]
-    preview_deletions = pubhelperv6.batch_search_delete(dontDelete=False, term="Created to be searched, found, and deleted")
-    # assert len(preview_deletions["pubIds"]) == len(pubs_slugs)
+    hard_deletions = pubhelperv6.batch_search_delete(dontDelete=False, term=title_prefix)
+    assert len(hard_deletions) == len(pubs_slugs)
     pubs_check = pubhelperv6.get_many_pubs(pub_ids = pubs_batch["createdPubIds"] )
     assert len(pubs_check["pubIds"]) == 0
 
