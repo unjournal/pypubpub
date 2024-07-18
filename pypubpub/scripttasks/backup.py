@@ -30,14 +30,14 @@ def exportV6(pubhelper:p1, output_dir="./", format='plain', one_file=True,  pubs
                 pub_slug= pubs00['pubsById'][p]['slug']
                 f.write(f'pubId: {p}\n'.encode('utf-8'))
                 f.write(f'pub slug: {pub_slug}\n'.encode('utf-8'))
-                print(f'pubId: {p}\n')
-                print(f'pub slug: {pub_slug}\n')
+                print(f'pubId: {p}')
+                print(f'pub slug: {pub_slug}')
                 try:
                     d = pubhelper.downloadpubexport(p, format=format, http_response_format='content')
                     f.write(d)
                 except Exception as e:
-                    print("ERROR: unable to download export : pub id :", p, "slug::", pub_slug, e)
-                    f.write(b"ERROR: unable to download export")
+                    print("ERROR: unable to download export : pub id :", p, "slug:", pub_slug, 'error:', e)
+                    f.write(b"ERROR: unable to download export\n")
                     f.write(str(e).encode('utf-8'))
                 f.write(b"\n\n")
     else:
@@ -45,15 +45,15 @@ def exportV6(pubhelper:p1, output_dir="./", format='plain', one_file=True,  pubs
             pub_slug= pubs00['pubsById'][p]['slug']
             pub_filepath = os.path.normpath(os.path.expanduser(f'{output_dir}/pub-{p}.{format}'))
             with(open(pub_filepath, 'wb')) as f:
-                print(f'pubId: {p}\n')
-                print(f'pub slug: {pubs00['pubsById'][p]['slug']}\n')
+                print(f'pubId: {p}')
+                print(f'pub slug: {pubs00['pubsById'][p]['slug']}')
                 try:
                     d = pubhelper.downloadpubexport(p, format=format, http_response_format='content')
                     f.write(d)
                     print('success writing to file')
                 except Exception as e:
-                    print("ERROR: unable to download export : pub id :", p, "slug::", pubs00['pubsById'][p]['slug'], e)
-                    f.write(b"ERROR: unable to download export")
+                    print("ERROR: unable to download export : pub id :", p, " slug:", pubs00['pubsById'][p]['slug'], 'error: ', e)
+                    f.write(b"ERROR: unable to download export\n")
                     f.write(str(e).encode('utf-8'))
                 
 

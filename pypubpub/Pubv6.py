@@ -12,6 +12,9 @@ import json
 from Crypto.Hash import keccak
 import bibtexparser
 import copy
+from concurrent import futures 
+import math
+import warnings
 from .utility import Titlemachine
 
 from pypubpub.utils import generate_random_number_string, generate_slug, isMaybePubId, retry #need hashed passwords for API
@@ -300,7 +303,28 @@ class Pubshelper_v6:
         return response
 
 
-    def get_many_pubs(self, limit = 200, offset = 0, ordering= {'field': 'updatedDate', 'direction': 'DESC'}, collection_ids=None, pub_ids=None, pubOptions={}, alreadyFetchedPubIds=[]):
+    def get_many_pubs(
+            self, 
+            limit = 200, 
+            offset = 0, 
+            ordering= {'field': 'updatedDate', 'direction': 'DESC'}, 
+            collection_ids=None, 
+            pub_ids=None, 
+            pubOptions={}, 
+            alreadyFetchedPubIds=[],
+            isReleased=False,
+            term:str = '',
+            relatedUserIds:list = [],
+            ):
+        """Get many pubs, also sends a query to the Pubpub backend
+            some but not all of the fields are described in the online documentation for options: https://www.pubpub.org/apiDocs#/paths/api-pubs-many/post
+            Parameters
+            ----------
+            isReleased: bool, optional
+                default is false which will return only unpublished drafts. true returns published pubs. None returns both drafts and published pubs.
+            relatedUserIds: list[str], optional
+                list of user ids connected to the Pub. Could be authors, contributors, editors, or other types of connections.
+        """
 
         response = self.authed_request(
             'pubs/many',
@@ -315,13 +339,15 @@ class Pubshelper_v6:
                     'communityId': self.community_id,
                     **( {'collectionIds': collection_ids} if collection_ids else {}),
                     **(   {'withinPubIds': pub_ids} if pub_ids else {}),
+                    **( {'term':term} if term else {}),
+                    **( {'isReleased':isReleased} if isReleased else {}),
+                    **( {'relatedUserIds':relatedUserIds} if relatedUserIds else {}),
                     'limit': limit,
                     'offset': offset,
                     'ordering': ordering,
                 },
             },
         )
-
         return response
 
     def get_byreleased_pubs(self,
@@ -398,6 +424,99 @@ class Pubshelper_v6:
             },
         )
         return response
+    
+    def track_delete_pub(self,pub_id, slug=None, title=None):
+        """Helper delete method used by the batch_delete method. 
+        """
+        response = None
+        try:
+            response = self.delete_pub( pub_id=pub_id)
+            return {"pub_id":pub_id,"title":title, "slug":slug, "response":response}
+        except Exception as e:
+            return {"pub_id":pub_id,"title":title, "slug":slug, "response":None, "error":e}
+        
+    def batch_delete(self, pub_ids:list[str], pubsById:dict=None):
+        """delete a batch of pubs at once by repeatedly calling the Pubpub delete API
+        """
+        result_from_deletes = []
+        chunks = (pub_ids[i*5:i*5+5] for i in range(math.ceil(len(pub_ids)/5)))
+        
+
+        for chunk in chunks:
+            x = self.helper_delete_n( chunk, pubsById=pubsById)
+            result_from_deletes.append(x)
+        return result_from_deletes
+
+
+    def helper_delete_n(self, pub_id_list:list, pubsById:dict=None):
+        with futures.ThreadPoolExecutor() as executor:
+            delete_results = []
+            for pubId in pub_id_list:
+                p =  pubsById and pubId in pubsById
+                slug=p and pubsById[pubId]['slug']
+                title=p and pubsById[pubId]['title']
+                delete_results.append(
+                    executor.submit(
+                        self.track_delete_pub, pub_id=pubId, slug=slug, title=title
+                    )
+                )
+            return [f.result() for f in futures.as_completed(delete_results)]
+
+    def delete_many_pubs(self, pub_list=[], pubsById:dict=None):
+        """Delete many pubs at once by repeatedly calling the Pubpub delete API
+            Often errors out with a 500 error if called to delete more than 5 Pubs
+            Also may be slower than the batch_delete method.
+            Recommendation: Use batch_delete instead.
+        """
+        if(len(pub_list)>5):
+            warnings.warn('Often errors out with a 500 error if called to delete more than 5 Pubs. Recommendation: Use batch_delete instead.')
+        result_from_deletes = []
+        for pubid in pub_list:
+            x = self.track_delete_pub( pubid)
+            self.delete_pub(pubid)
+            result_from_deletes.append(x)
+        return result_from_deletes
+
+
+    def search_pubs(self, term:str='', limit=200, offset=0, ordering={'field': 'updatedDate', 'direction': 'DESC'}, isReleased=False, collection_ids=None, pub_ids=None, alreadyFetchedPubIds=[], relatedUserIds=[]):
+        """Search for pubs using the method get which uses the Pubpub API which can search title and contributors such as author, editor"""
+        return self.get_many_pubs(limit=limit,offset=offset,ordering=ordering,isReleased=isReleased,collection_ids=collection_ids,pub_ids=pub_ids,alreadyFetchedPubIds=alreadyFetchedPubIds,term=term,relatedUserIds=relatedUserIds)
+
+    def search_text(self, term:str='', limit=200, offset=0, ordering={'field': 'updatedDate', 'direction': 'DESC'}, isReleased=False, collection_ids=None, pub_ids=None, alreadyFetchedPubIds=[], relatedUserIds=[]):
+        """Search for Pubs using Algolia full text search
+            NOT YET IMPLEMENTED.
+        """
+        return
+
+    def batch_search_delete_text(self, term:str='', limit=200, offset=0, ordering={'field': 'updatedDate', 'direction': 'DESC'}, isReleased=False, collection_ids=None, pub_ids=None, alreadyFetchedPubIds=[], relatedUserIds=[]):
+        """Search for Pubs using Algolia full text search, and then batch delete.
+            NOT YET IMPLEMENTED.
+        """
+        return
+
+
+    def batch_search_delete(
+            self, 
+            dontDelete=True,
+            limit=200, 
+            offset=0, 
+            ordering={'field': 'updatedDate', 'direction': 'DESC'}, 
+            isReleased=False, 
+            collection_ids=None, 
+            pub_ids=None, 
+            alreadyFetchedPubIds=[], 
+            term:str='', 
+            relatedUserIds=[]):
+        """Search for pubs and delete them in batches. 
+            parameter `dontDelete`= True  by default. Set to False to actually delete the pubs.   
+            The other parameters are the same as the method `get_many_pubs`
+            Parameter `isReleased` defualts to `False`, which will return only unpublished drafts. `True` deletes only published Pubs. `None` deletes both drafts and published pubs.
+            Returns a list of results from the delete operation.           
+        """
+        pubs00 = self.get_many_pubs(limit=limit,offset=offset,ordering=ordering,isReleased=isReleased,collection_ids=collection_ids,pub_ids=pub_ids,alreadyFetchedPubIds=alreadyFetchedPubIds,term=term,relatedUserIds=relatedUserIds)
+        if(dontDelete):
+            return pubs00
+        return self.batch_delete(*pubs00)
 
     def getPub(self, pub_id):
         return self.get_many_pubs(pub_ids=[pub_id])
