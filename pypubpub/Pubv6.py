@@ -598,7 +598,7 @@ class Pubshelper_v6:
         """
         response = self.export_initiate(pubId, format)
         url=None
-        print('export respon :: ', response)
+        print('export response :: ', response)
         if('url' in response):
             url = response['url']
         elif('taskId' in response):
