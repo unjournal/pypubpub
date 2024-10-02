@@ -7,7 +7,7 @@ import traceback
 
 import nltk
 nltk.download('punkt') #don't worry: download check if previously downloaded into the environment
-# nltk.download('stopwords')
+nltk.download('stopwords')
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from slugify import slugify  #python-slugify package
@@ -101,3 +101,16 @@ def generate_slug_without_stop_words(title,slug_length=0, word_min_length=3):
     # slug = slugify(filtered_title)
     
     # return slug
+
+
+def get_domain(s:str):
+    """" Get the domain from a URL 
+        for example 
+        s = "https://testabcd123456789.pubpub.org/pub/nudgesincreasewelfare2286/draft"
+        returns 
+    """
+    smatches = re.match(r"https://(\w|\.)+", s)
+    if(smatches and smatches.group()): 
+        return smatches.group()
+
+

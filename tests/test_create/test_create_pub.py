@@ -93,13 +93,13 @@ def test_create_a_pub():
 def test_create_batch_pubs(pubhelperv6,migratehelperv6):
     """ test to create a batch of 3 pubs and then do cleanup and delete the batch of pubs"""
     pubs_slugs=[]
-    for i in range(3):
+    for i in range(3+2):
         slugger = "test-" + generate_random_number_string(10)
         pubs_slugs.append({"slug":slugger, "title":slugger, "description":slugger})
     pubs_batch = migratehelperv6.createPubs(pubs_slugs)
     time.sleep(5)
     pubs_check = pubhelperv6.get_many_pubs(pub_ids = pubs_batch["createdPubIds"] )
-    assert len(pubs_check) == len(pubs_slugs)
+    assert len(pubs_check["pubIds"]) == len(pubs_slugs)
     pubs_batch['createdPubIds'].sort()
     pubs_check["pubIds"].sort()
     assert pubs_batch['createdPubIds'] == pubs_check["pubIds"]
