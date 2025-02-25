@@ -14,7 +14,7 @@ import pypubpub.repec as repec
 print("using Python: ", sys.version)
 
 
-def repecBuild(community_url=None, community_id=None, password=None, email=None):
+def repecBuild(community_url=None, community_id=None, password=None, email=None, output_dir="./"):
     """Build up .rdf metadata file for RePeC
                                      the default is to only build the file for published Pubs
                                      in which case login authentication is not needed. 
@@ -28,7 +28,7 @@ def repecBuild(community_url=None, community_id=None, password=None, email=None)
         pub_helper.password = password
     if email is not None:
         pub_helper.email = email
-    repec_helper = repec.RePEcPopulator(pubhelper=pub_helper, inputdir=None, outputdir=os.path.realpath('.'))
+    repec_helper = repec.RePEcPopulator(pubhelper=pub_helper, inputdir=None, outputdir=os.path.realpath(output_dir))
     h=repec_helper.build_metadata_file()
 
     print("metadata len: \n")
@@ -48,4 +48,4 @@ if __name__ == "__main__":
                         help="directory to write files to. Default is the current directory")
     args = parser.parse_args()
     # exportV6(pubhelper=pubhelper, format=args.format , one_file=(not args.multiple), output_dir=args.directory)
-    repecBuild()
+    repecBuild(output_dir=args.directory)
