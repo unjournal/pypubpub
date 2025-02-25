@@ -18,7 +18,7 @@ class RePEcPopulator:
             pubhelper:Pubshelper_v6, 
             inputdir, 
             outputdir, 
-            blacklist, 
+            blacklist=[], 
             format_suffix=".rdf", 
             file_options={"one_file":True }, 
             blacklist_templates=[],
@@ -60,7 +60,7 @@ class RePEcPopulator:
                                                      
         )
         # todo: remove blacklisted items
-        self.pubs_all = self.remove_blacklisted_pubs(self.pubs_all)
+        # self.pubs_all = self.remove_blacklisted_pubs(self.pubs_all)
         # go thru list and make metadata object
         self.pubs_metadata=[]
         # write metadata object to file(s)
@@ -142,7 +142,7 @@ File-Format: text/html
         title_keyword_blacklist = [b['titleKeyword'] for b in self.blacklist if 'titleKeyword' in b]
         id_blacklist = [b['id'] for b in self.blacklist if 'id' in b]
         doi_blacklist = [b['doi'] for b in self.blacklist if 'doi' in b]
-        pubs2 = [p for p in pubs 
+        pubs2 = [p for p in pubs['pubs'] 
              if not ( 
                  (p['doi']  in doi_blacklist)
                  or (p['slug']  in slug_blacklist)
