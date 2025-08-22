@@ -194,3 +194,69 @@ File-Format: text/html
 
 
 
+class RePEcParseExisting:
+    """ Class to parse an existing RePEc.org redif metadata files and return metadata objects for pubs already published to RePEc.org"""
+    def __init__(self, inputdir):
+        self.inputdir = inputdir
+
+    def parse_metadata(self):
+        """ Parse the metadata of a RePEc.org redif metadata file"""
+        with open(self.inputdir, "r") as f:
+            metadata = f.read()
+        return metadata
+    
+    def get_metadata_via_ftpserver(self, ftp_server="54.54.54.54", subdir="/zhb"):
+        """ Get the metadata of a RePEc.org redif metadata file via anonymous login to ftp server"""
+        from ..utility import RePECFTPUtility
+        
+        ftp_util = RePECFTPUtility(host=ftp_server)
+        
+        try:
+            if not ftp_util.connect():
+                raise Exception(f"Failed to connect to FTP server {ftp_server}")
+                
+            # Get list of metadata files
+            metadata_files = ftp_util.get_metadata_files_names(subdir=subdir, pattern="*.rdf")
+            
+            if not metadata_files:
+                print(f"No metadata files found in {subdir}")
+                return []
+                
+            print(f"Found {len(metadata_files)} metadata files: {metadata_files}")
+            return metadata_files
+            
+        finally:
+            ftp_util.disconnect()
+    
+    def download_metadata_files(self, ftp_server="54.54.54.54", subdir="/zhb", local_dir=".", pattern="*.rdf"):
+        """ Download RePEc metadata files from FTP server to local directory"""
+        from ..utility import RePECFTPUtility
+        
+        ftp_util = RePECFTPUtility(host=ftp_server)
+        
+        try:
+            if not ftp_util.connect():
+                raise Exception(f"Failed to connect to FTP server {ftp_server}")
+                
+            # Download metadata files
+            results = ftp_util.download_metadata_files(
+                subdir=subdir, 
+                local_dir=local_dir, 
+                pattern=pattern
+            )
+            
+            # Print results
+            successful = [f for f, success in results if success]
+            failed = [f for f, success in results if not success]
+            
+            if successful:
+                print(f"Successfully downloaded {len(successful)} files: {successful}")
+            if failed:
+                print(f"Failed to download {len(failed)} files: {failed}")
+                
+            return results
+            
+        finally:
+            ftp_util.disconnect()
+    
+    
