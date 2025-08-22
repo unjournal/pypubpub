@@ -29,10 +29,11 @@ def repecBuild(community_url=None, community_id=None, password=None, email=None,
     if email is not None:
         pub_helper.email = email
     repec_helper = repec.RePEcPopulator(pubhelper=pub_helper, inputdir=None, outputdir=os.path.realpath(output_dir))
-    h=repec_helper.build_metadata_file()
+    metadata=repec_helper.build_metadata_file()
 
     print("metadata len: \n")
-    print(len(h))
+    print(len(metadata))
+    return metadata
 
 
 if __name__ == "__main__":
