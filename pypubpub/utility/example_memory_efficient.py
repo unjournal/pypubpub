@@ -38,17 +38,17 @@ def example_single_file_processing():
                 print(f"  Metadata fields: {len(metadata)}")
                 
                 # Display key metadata fields
-                print("\n  Key metadata:")
-                for key, value in metadata.items():
-                    if key in ['Title', 'Author-Name', 'Abstract', 'DOI', 'Handle']:
-                        if isinstance(value, list):
-                            print(f"    {key}: {value[0]}... (and {len(value)-1} more)")
-                        else:
-                            print(f"    {key}: {str(value)[:100]}...")
+                print("\n  Key metadata:", metadata)
+                # for key, value in metadata.items():
+                #     if key in ['Title', 'Author-Name', 'Abstract', 'DOI', 'Handle']:
+                #         if isinstance(value, list):
+                #             print(f"    {key}: {value[0]}... (and {len(value)-1} more)")
+                #         else:
+                #             print(f"    {key}: {str(value)[:100]}...")
                             
-                # Show full metadata structure
-                print(f"\n  Full metadata structure:")
-                print(json.dumps(metadata, indent=2, ensure_ascii=False)[:500] + "...")
+                # # Show full metadata structure
+                # print(f"\n  Full metadata structure:")
+                # print(json.dumps(metadata, indent=2, ensure_ascii=False)[:500] + "...")
             else:
                 print(f"✗ Failed to process {filename}")
                 
@@ -77,19 +77,20 @@ def example_batch_processing():
             total_metadata_fields = 0
             
             for filename, content, metadata, success in results:
+                print('+BATCH metadata::', metadata)
                 if success:
                     successful_count += 1
-                    total_metadata_fields += len(metadata)
+                    # total_metadata_fields += len(metadata)
                     
                     # Extract key information
-                    title = metadata.get('Title', 'No title')
-                    authors = metadata.get('Author-Name', [])
-                    if isinstance(authors, str):
-                        authors = [authors]
+                    # title = metadata.get('Title', 'No title')
+                    # authors = metadata.get('Author-Name', [])
+                    # if isinstance(authors, str):
+                    #     authors = [authors]
                     
                     print(f"  ✓ {filename}")
-                    print(f"    Title: {str(title)[:80]}...")
-                    print(f"    Authors: {len(authors)} author(s)")
+                    # print(f"    Title: {str(title)[:80]}...")
+                    # print(f"    Authors: {len(authors)} author(s)")
                     print(f"    Fields: {len(metadata)} metadata fields")
                 else:
                     print(f"  ✗ {filename}: Failed")
@@ -151,11 +152,12 @@ def example_encoding_workflow():
             print(f"   Parsed {len(metadata)} metadata fields")
             
             # Show sample metadata
-            print("\n   Sample metadata:")
-            for i, (key, value) in enumerate(metadata.items()):
-                if i >= 5:  # Show first 5 fields
-                    break
-                print(f"     {key}: {str(value)[:50]}...")
+            # print("\n   Sample metadata:")
+            print("\n   Sample metadata:", metadata)
+            # for i, (key, value) in enumerate(metadata.items()):
+            #     if i >= 5:  # Show first 5 fields
+            #         break
+            #     print(f"     {key}: {str(value)[:50]}...")
                 
     finally:
         repec_ftp.disconnect()

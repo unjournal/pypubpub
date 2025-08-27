@@ -3,6 +3,7 @@
 import os
 import glob
 from ftplib import FTP, error_perm, error_temp
+import re
 from typing import List, Optional, Tuple, Union
 import logging
 
@@ -284,6 +285,7 @@ class RePECFTPUtility(FTPUtility):
         self.file_pattern = file_pattern
         self.source_encoding = source_encoding
         self.target_encoding = target_encoding
+        print("STARTING::::",self.host,self.path,self.file_pattern)
         super().__init__(host=self.host, username="", password="", timeout=self.timeout)
         
     def get_metadata_files_names(self) -> List[str]:
@@ -739,7 +741,7 @@ class RePECFTPUtility(FTPUtility):
         
         return True, content_string, metadata_dict
         
-    def parse_repec_metadata(self, content_string: str) -> dict:
+    def parse_repec_metadata_BAK1(self, content_string: str) -> dict:
         """
         Parse RePEc metadata string into a dictionary of key-value pairs
         
@@ -782,6 +784,54 @@ class RePECFTPUtility(FTPUtility):
             logger.error(f"Error parsing RePEc metadata: {e}")
             return {}
             
+    def parse_repec_metadata(self, content_string: str, select_keys=['DOI', 'File-URL', 'Handle', 'Number']) -> dict:
+        """
+        Parse RePEc metadata string into a dictionary of key-value pairs
+        
+        Args:
+            content_string: RePEc metadata content as string
+            
+        Returns:
+            List of Dictionary containing parsed metadata
+        """
+        entryMetadata=[]
+                
+        try:
+            entries = re.split(r'Template-Type: ReDIF.+?(?=\n|$)', content_string.strip())[1:]
+            # Split content into lines
+            for entry in entries:
+                metadata = {}
+                lines = entry.strip().split('\n')
+                for line in lines:
+                    line = line.strip()
+                    if not line or line.startswith('#'):
+                        continue
+                        
+                    # Parse RePEc format: Key: Value
+                    if ':' in line:
+                        key, value = line.split(':', 1)
+                        key = key.strip()
+                        value = value.strip()
+                        
+                        # Handle multi-line values (indented lines)
+                        if (key in select_keys) and (key in metadata):
+                            if isinstance(metadata[key], list):
+                                metadata[key].append(value)
+                            else:
+                                metadata[key] = [metadata[key], value]
+                        elif (key in select_keys):
+                            metadata[key] = value
+                        else:
+                            None
+                entryMetadata.append(metadata)
+
+            logger.info(f"Successfully parsed RePEc metadata with {len(metadata)} fields")
+            return entryMetadata
+            
+        except Exception as e:
+            logger.error(f"Error parsing RePEc metadata: {e}")
+            return {}
+            
     def download_multiple_metadata_files(self) -> List[Tuple[str, str, dict, bool]]:
         """
         Download multiple RePEc metadata files and parse them into dictionaries
@@ -817,7 +867,7 @@ class RePECFTPUtility(FTPUtility):
                 results.append((filename, content, metadata, success))
                 
                 if success:
-                    logger.info(f"Successfully processed {filename}: {len(metadata)} metadata fields")
+                    logger.info(f"Successfully processed {filename}: {len(metadata)} metadata ")
                 else:
                     logger.warning(f"Failed to process {filename}")
                     
