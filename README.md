@@ -27,8 +27,28 @@ tests: trying it out
 Moved to https://github.com/daaronr/unjournalpubpub_production -- production_work: actual work for real on the pubpub V6 content. Keeping track of what was done
 
 repec_rdfs: rdf files created to add to repec (but how did we create them again?)
+--> instructions in  https://github.com/daaronr/unjournalpubpub_production
 
 notebooks: Work from Google collab
+
+## Utility Scripts
+
+### delete_untitled_pubs.py
+
+Utility script to find and delete all publications with titles starting with "untitled pub".
+
+**Usage:**
+```bash
+PASSWORD="your-password" .venv/bin/python delete_untitled_pubs.py
+```
+
+**Features:**
+- Searches for all pubs with titles matching "untitled pub" (case-insensitive)
+- Displays a list of all matching pubs before deletion
+- Provides progress feedback during batch deletion
+- Generates a summary report of successful and failed deletions
+
+**Security Note:** Requires `PASSWORD` environment variable to be set. The script uses credentials from `tests/conf_settings.py`, which is gitignored and should never be committed with real passwords.
 
 ### Scratch work on fixes
 
