@@ -1,0 +1,138 @@
+{
+  "real_chatgpt_links": {
+    "evalsumirrigationresilience": {
+      "pub_title": "Evaluation Summary and Metrics: \"Irrigation Strengthens Climate Resilience: Long-term Evidence from Mali using Satellites and Surveys\"",
+      "pub_url": "https://unjournal.pubpub.org/pub/evalsumirrigationresilience",
+      "chatgpt_links": [
+        {
+          "url": "https://chatgpt.com/share/68cac67f-c910-8002-8d46-3136923f78f6",
+          "status": 404,
+          "accessible": false,
+          "error": null
+        },
+        {
+          "url": "https://chatgpt.com/share/68caa95a-6a10-8002-b2a7-63207a114685",
+          "status": 404,
+          "accessible": false,
+          "error": null
+        },
+        {
+          "url": "https://chatgpt.com/share/68cc1a93-b28c-8002-b3dc-776ec7f8e42d",
+          "status": 404,
+          "accessible": false,
+          "error": null
+        },
+        {
+          "url": "https://chatgpt.com/s/t_68cbe6b375988191974ad9694e112cab",
+          "status": 403,
+          "accessible": false,
+          "error": null
+        },
+        {
+          "url": "https://chatgpt.com/share/68cac869-fdf0-8002-8323-825a9b7c5e30",
+          "status": 404,
+          "accessible": false,
+          "error": null
+        },
+        {
+          "url": "https://chatgpt.com/share/68cc1a33-0c24-8002-bd7b-c9e49cfa8805",
+          "status": 404,
+          "accessible": false,
+          "error": null
+        }
+      ]
+    },
+    "evalsumpivotpenalty": {
+      "pub_title": "Evaluation Summary and Metrics: \"Adaptability and the Pivot Penalty in Science and Technology\"",
+      "pub_url": "https://unjournal.pubpub.org/pub/evalsumpivotpenalty",
+      "chatgpt_links": [
+        {
+          "url": "https://chatgpt.com/share/67db35be-85d0-8002-abad-aa7862117a25",
+          "status": 404,
+          "accessible": false,
+          "error": null
+        },
+        {
+          "url": "https://chatgpt.com/share/67db33c5-a260-8002-81e8-633904aef9df",
+          "status": 404,
+          "accessible": false,
+          "error": null
+        }
+      ]
+    },
+    "e1pivotpenalty": {
+      "pub_title": "Evaluation 1 of \"Adaptability and the Pivot Penalty in Science and Technology\"",
+      "pub_url": "https://unjournal.pubpub.org/pub/e1pivotpenalty",
+      "chatgpt_links": [
+        {
+          "url": "https://chatgpt.com/share/67db35be-85d0-8002-abad-aa7862117a25",
+          "status": 404,
+          "accessible": false,
+          "error": null
+        },
+        {
+          "url": "https://chatgpt.com/share/67db09ee-f4fc-8002-8cf5-606e6c761c89\\",
+          "status": 403,
+          "accessible": false,
+          "error": null
+        }
+      ]
+    },
+    "evalsumintergendeworming": {
+      "pub_title": "Evaluation Summary and Metrics: \"Intergenerational Child Mortality Impacts of Deworming: Experimental Evidence from Two Decades of the Kenya Life Panel Survey\"",
+      "pub_url": "https://unjournal.pubpub.org/pub/evalsumintergendeworming",
+      "chatgpt_links": [
+        {
+          "url": "https://chatgpt.com/share/e588be50-d63d-4320-9a5a-3bcbf077f63a",
+          "status": 200,
+          "accessible": true,
+          "error": null
+        }
+      ]
+    }
+  },
+  "false_positives": [
+    {
+      "pub_title": "Evaluation Summary and Metrics: \"Forecasts estimate limited cultured meat production through 2050\", Applied Stream",
+      "pub_slug": "evalsumlimitedmeadprod",
+      "pub_url": "https://unjournal.pubpub.org/pub/evalsumlimitedmeadprod",
+      "chatgpt_url": "https://rethinkpriorities.org/research-area/forecasts-estimate-limited-cultured-meat-production-through-2050/?utm_source=chatgpt.com\\"
+    },
+    {
+      "pub_title": "Evaluation Summary and Metrics: \"Forecasts estimate limited cultured meat production through 2050\", Applied Stream",
+      "pub_slug": "evalsumlimitedmeadprod",
+      "pub_url": "https://unjournal.pubpub.org/pub/evalsumlimitedmeadprod",
+      "chatgpt_url": "https://rethinkpriorities.org/research-area/forecasts-estimate-limited-cultured-meat-production-through-2050/?utm_source=chatgpt.com"
+    },
+    {
+      "pub_title": "Evaluation 2 of \"Forecasts estimate limited cultured meat production through 2050\"",
+      "pub_slug": "e2limitedmeatprod",
+      "pub_url": "https://unjournal.pubpub.org/pub/e2limitedmeatprod",
+      "chatgpt_url": "https://aleph-farms.com/journals/cultivated-beef-tea-profitability/?utm_source=chatgpt.com"
+    },
+    {
+      "pub_title": "Evaluation 2 of \"Forecasts estimate limited cultured meat production through 2050\"",
+      "pub_slug": "e2limitedmeatprod",
+      "pub_url": "https://unjournal.pubpub.org/pub/e2limitedmeatprod",
+      "chatgpt_url": "https://gfi.org/resource/cultivated-meat-growth-factor-volume-and-cost-analysis/?utm_source=chatgpt.com"
+    },
+    {
+      "pub_title": "Evaluation 2 of \"Forecasts estimate limited cultured meat production through 2050\"",
+      "pub_slug": "e2limitedmeatprod",
+      "pub_url": "https://unjournal.pubpub.org/pub/e2limitedmeatprod",
+      "chatgpt_url": "https://gfi.org/resource/cultivated-meat-growth-factor-volume-and-cost-analysis/?utm_source=chatgpt.com\\"
+    },
+    {
+      "pub_title": "Evaluation 2 of \"Forecasts estimate limited cultured meat production through 2050\"",
+      "pub_slug": "e2limitedmeatprod",
+      "pub_url": "https://unjournal.pubpub.org/pub/e2limitedmeatprod",
+      "chatgpt_url": "https://aleph-farms.com/journals/cultivated-beef-tea-profitability/?utm_source=chatgpt.com\\"
+    }
+  ],
+  "summary": {
+    "total_real": 11,
+    "accessible": 1,
+    "not_accessible": 10,
+    "false_positives": 6
+  }
+}

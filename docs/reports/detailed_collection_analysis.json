@@ -1,0 +1,37 @@
+{
+  "issues": [
+    {
+      "type": "eval_missing_from_thematic_collection",
+      "severity": "medium",
+      "summary_title": "Evaluation Summary of The Long-Run Effects of Psychotherapy on Depression, Beliefs, and Economic Outcomes",
+      "summary_slug": "evalsumpsychotherapy",
+      "eval_title": "Evaluation 1 of The Long-Run Effects of Psychotherapy on Depression, Beliefs, and Economic Outcomes",
+      "eval_slug": "eval1psychotherapy",
+      "eval_id": "b8fe6646-10a6-4ff6-a9b7-5b96194baaba",
+      "missing_from": [
+        "global-health-and-wellbeing"
+      ],
+      "message": "Individual evaluation 'Evaluation 1 of The Long-Run Effects of Psychotherapy on Depression, Beliefs, and Economic Outcomes' missing from thematic collections: global-health-and-wellbeing"
+    }
+  ],
+  "summary": {
+    "total_issues": 1,
+    "by_severity": {
+      "high": 0,
+      "medium": 1,
+      "low": 0
+    },
+    "by_type": {}
+  },
+  "recommendations": [
+    {
+      "action": "add_to_collection",
+      "pub_id": "b8fe6646-10a6-4ff6-a9b7-5b96194baaba",
+      "pub_slug": "eval1psychotherapy",
+      "collection_slugs": [
+        "global-health-and-wellbeing"
+      ],
+      "reason": "Individual evaluation 'Evaluation 1 of The Long-Run Effects of Psychotherapy on Depression, Beliefs, and Economic Outcomes' missing from thematic collections: global-health-and-wellbeing"
+    }
+  ]
+}

@@ -1,7 +1,46 @@
 tests/conf_settings.py
 
+# ============================================================================
+# SECURITY: NEVER COMMIT THESE FILES
+# ============================================================================
+
+# API Keys and Credentials
+*.env
+.env
+.env.*
+!.env.example
+.Renviron
+*_credentials.py
+*_secrets.py
+config_local.py
+unjournalpubpub_production_moved/conf.py
+
+# Sensitive Evaluation Data
+evaluation_data/confidential/
+confidential/
+*_confidential.json
+*_confidential.csv
+*_with_pseudonyms.json
+*_sensitive.*
+*_private.*
+
+# API Tokens and Keys
+*_api_key*
+*_token*
+*_secret*
+coda_exports/
+
+# Passwords (double-check no hardcoded passwords anywhere!)
+*password*
+*passwd*
+
+# ============================================================================
+# Standard Python Ignores
+# ============================================================================
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
 
+.env_do_not_share
