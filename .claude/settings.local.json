@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python scan_links.py:*)",
+      "Bash(python:*)",
+      "Bash(.venv/bin/python:*)",
+      "WebFetch(domain:www.pubpub.org)",
+      "Bash(unzip:*)",
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "Bash(pip install:*)",
+      "Bash(cat:*)",
+      "Bash(mkdir:*)",
+      "Bash(mv:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
