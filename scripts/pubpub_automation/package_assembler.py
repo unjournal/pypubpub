@@ -16,9 +16,15 @@ from pathlib import Path
 from typing import Dict, List, Optional, Union
 from dataclasses import dataclass, field
 
-from .latex_to_markdown import LatexToMarkdownConverter
-from .template_generator import TemplateGenerator
-from .ratings_table_generator import generate_full_evaluation_ratings
+try:
+    from .latex_to_markdown import LatexToMarkdownConverter
+    from .template_generator import TemplateGenerator
+    from .ratings_table_generator import generate_full_evaluation_ratings
+except ImportError:
+    # Allow execution when the module is imported outside the package context
+    from latex_to_markdown import LatexToMarkdownConverter
+    from template_generator import TemplateGenerator
+    from ratings_table_generator import generate_full_evaluation_ratings
 
 
 @dataclass

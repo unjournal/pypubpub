@@ -119,25 +119,32 @@ class EvaluationPackageCreator:
         )
 
         print(f"  ✓ Created evaluation summary pub: {pkg.eval_summ_pub['id']}")
-        for i, pub in enumerate(pkg.activePubs, 1):
-            print(f"  ✓ Created evaluation {i} pub: {pub['id']}")
+        for i, (pub_id, pub_obj) in enumerate(pkg.activePubs, 1):
+            print(f"  ✓ Created evaluation {i} pub: {pub_id}")
 
         # Step 3: Import markdown content into pubs
         print("\nStep 3: Importing markdown content...")
 
         # Import summary
         print(f"  Importing summary...")
-        self.pubhelper.replace_pub_text(
-            pub_id=pkg.eval_summ_pub['id'],
+        # Replace using markdown helper on the summary
+        self.pubhelper.put_template_doc(
+            targetPubId=pkg.eval_summ_pub['id'],
+            template_id=None,
+            community_id=self.pubhelper.community_id,
+            community_url=self.pubhelper.community_url,
             markdown=package_markdown['summary']
         )
         print(f"    ✓ Summary content imported")
 
-        # Import individual evaluations
-        for i, (pub, eval_markdown) in enumerate(zip(pkg.activePubs, package_markdown['evaluations']), 1):
+        # Import individual evaluations using markdown helper
+        for i, ((pub_id, pub_obj), eval_markdown) in enumerate(zip(pkg.activePubs, package_markdown['evaluations']), 1):
             print(f"  Importing evaluation {i}...")
-            self.pubhelper.replace_pub_text(
-                pub_id=pub['id'],
+            self.pubhelper.put_template_doc(
+                targetPubId=pub_id,
+                template_id=None,
+                community_id=self.pubhelper.community_id,
+                community_url=self.pubhelper.community_url,
                 markdown=eval_markdown
             )
             print(f"    ✓ Evaluation {i} content imported")
@@ -149,8 +156,8 @@ class EvaluationPackageCreator:
 
         print("Created publications:")
         print(f"  Summary: {self.pubhelper.community_url}/pub/{pkg.eval_summ_pub['slug']}")
-        for i, pub in enumerate(pkg.activePubs, 1):
-            print(f"  Evaluation {i}: {self.pubhelper.community_url}/pub/{pub['slug']}")
+        for i, (pub_id, pub_obj) in enumerate(pkg.activePubs, 1):
+            print(f"  Evaluation {i}: {self.pubhelper.community_url}/pub/{pub_obj['slug']}")
 
         if draft_mode:
             print("\n⚠️  DRAFT MODE: Evaluator names not added yet")
@@ -161,8 +168,8 @@ class EvaluationPackageCreator:
             'summary_pub_id': pkg.eval_summ_pub['id'],
             'summary_slug': pkg.eval_summ_pub['slug'],
             'evaluation_pubs': [
-                {'id': pub['id'], 'slug': pub['slug']}
-                for pub in pkg.activePubs
+                {'id': pub_id, 'slug': pub_obj['slug']}
+                for (pub_id, pub_obj) in pkg.activePubs
             ],
             'package_markdown': package_markdown
         }

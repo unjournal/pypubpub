@@ -73,10 +73,19 @@ def generate_slug_without_stop_words(title,slug_length=0, word_min_length=3):
         print("other error ::: ")
         print(" : ",e)
         print(traceback.print_exception(e))
-    
+    if not words:
+        # Fallback simple tokenization if NLTK tokenizers are unavailable
+        words = re.findall(r"[A-Za-z0-9]+", title or "")
+
     # Remove stop words
-    stop_words = set(stopwords.words('english'))
+    try:
+        stop_words = set(stopwords.words('english'))
+    except LookupError:
+        stop_words = set()
+
     filtered_words = [word for word in words if (len(word)>=word_min_length and(word.casefold() not in stop_words))]
+    if not filtered_words:
+        return slugify(title or "")
     return slugify("".join(filtered_words))
     # len_f = len(filtered_words) - slug_length
     # if(slug_length==1):
@@ -112,5 +121,4 @@ def get_domain(s:str):
     smatches = re.match(r"https://(\w|\.)+", s)
     if(smatches and smatches.group()): 
         return smatches.group()
-
 

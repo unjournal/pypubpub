@@ -1,0 +1,67 @@
+Name of the paper or project	Link	About our evaluation process	Identification as an author	Code	Summary of Eval	Evaluation	Claim identification, assessment, and implications	Overall assessment ranking	Lower Cl Overall assessment ranking	Upper Cl - Overall assessment ranking	Journal ranking tiers	midpoint_normative_journal	midpoint_predicted_journal	Confidential comments	Confidential comments section	Survey questions	How long have you been in this field?	How many proposals, papers, and projects have you evaluated/reviewed (for journals, grants, or other peer-review)?	COI tickbox	Approximately how long did you spend completing this evaluation?	hours_spent_manual_impute	How would you rate this template and process?	Would you be willing to consider evaluating a revised version of this work?	Do you have any other suggestions or questions about this process or The Unjournal? (We will try to respond, and incorporate your suggestions.)	eval_pool	Collaborative evaluation	Date entered (includes transfer from PubPub)	Field/expertise	Final section
+Adjusting for Scale-Use Heterogeneity in Self-Reported Well-Being	https://www.nber.org/papers/w31728	This form pertains to our main (academic) stream. See our overall ‘guidelines for evaluators’ here. We ask evaluators in this stream to:
+
+
+
+1. Write an evaluation, up to the standards of a high-quality referee report for a traditional journal.  Consider standard guidelines as well as The Unjournal’s emphases.  Please try to address any specific considerations mentioned in our bespoke evaluation notes, and any specific requests from the evaluation manager.
+2. Give quantitative metrics and predictions.
+3. Identify and assess the ‘most important claim’ of the research.
+4. Answer a short questionnaire about your background and our processes.
+
+
+
+Our full evaluation guidelines are here.
+
+
+
+Compensation: As a sign that we value this work, we compensate invited evaluators for prompt evaluations. Oct. 2025: we currently target $350 in compensation per on-time complete evaluation on average, including incentives and prizes. If you have been invited, the specific honorarium details should have been made clear to you. Consult and query our knowledge base for our updated compensation policies.
+
+
+The present form does not save your work; however, you can copy and work in this Google Doc (~approximate copy of this form) if you like.
+
+
+
+(Internal note 22 June 2025: We’ve been building a better-formatted form via the  PubPub Platform tool. However, their development is paused/frozen due to funding issues.)
+
+
+
+“Independent evaluators”: We’re  exploring an “independent evaluations” trial (see linked details). If you are doing this as an independent evaluation (i.e., you were not explicitly commissioned by The Unjournal to evaluate this paper), please see the explicit guidance here  on how to use this form as an independent evaluator.
+
+Remember:  Please try to evaluate the most recent version of the paper that you can find.
+
+
+	Alberto Prati	Prati	This is an extraordinary paper. It approaches a fundamental issue in wellbeing measurement, and does so constructively, by suggesting and testing a potential solution.		Claim identification, assessment, & implications (optional but rewarded)
+
+
+
+This section is meant to help practitioners use this research to inform their funding, policymaking, and other decisions. It is not intended as a metric to judge the research quality per se.
+
+This is mainly relevant for empirical research. If 'claim assessment’ does not makes sense for this paper, please consult the evaluation manager, or skip this section.
+
+We provide some examples of precisely-stated claims here, also drawing from the SCORE project, the Social Science Prediction Platform, and Metaculus.
+
+	95	90	100	Below, we ask you to consider this research on a different scale, considering ‘journal ranking tiers’ as follows:
+
+* 0.0: Marginally respectable/Little to no value
+* 1.0: OK/Somewhat valuable
+* 2.0: Marginal B-journal/Decent field journal
+* 3.0: Top B-journal/Strong field journal
+* 4.0: Marginal A-Journal/Top field journal
+* 5.0: A-journal/Top journal
+
+See the discussion of “journal ranking tiers” in our guidelines for more details, with some linked examples. We ask you to not just use integers, but to consider these to be on a continuous scale. E.g., “3.5” represents a journal that ranks halfway between a ‘top field journal' and a ‘strong field journal’.
+
+
+	5	4.8	Please write any confidential comments here
+
+
+
+Your comments here will not be public or seen by authors. Please use this section only for comments that are personal/sensitive in nature. Please place most of your evaluation in the public section.
+
+
+		Responses to these will be public unless you mention in your response that you want us to keep them private.
+
+
+
+	About 10 years	Between 40 and 60	true	3 days		It would be good to be able to download the template and fill it up offline	Maybe. I enjoyed doing it, but it took a lot of time.		false	Not sure.	11/14/2025	Behavioral economics and subjective wellbeing measurement	Final section (survey & comments)
+
