@@ -620,8 +620,166 @@ class Pubshelper_v6:
             method= 'POST',
             body={ "pubId": pubId, "format": format , "communityId":self.community_id}
         )
-    
-    
+
+    def import_to_pub(self, pubId, file_url, file_name="import.html", file_size=0):
+        """Import content from a file URL into a pub.
+
+        Args:
+            pubId: The pub ID to import into
+            file_url: URL of the file to import (must be a PubPub assets URL)
+            file_name: Name of the file for format detection (e.g., 'content.html', 'document.docx')
+            file_size: Size of the file in bytes
+
+        Returns:
+            The result of the import operation
+        """
+        # Extract asset key from URL - the path after the bucket domain
+        # e.g., from https://assets.pubpub.org/abc123/file.docx -> abc123/file.docx
+        if 'assets.pubpub.org/' in file_url:
+            asset_key = file_url.split('assets.pubpub.org/')[-1]
+        else:
+            asset_key = file_url.split('/')[-2] + '/' + file_url.split('/')[-1]
+
+        response = self.authed_request(
+            path='import',
+            method='POST',
+            body={
+                "pubId": pubId,
+                "sourceFiles": [
+                    {
+                        "clientPath": file_name,
+                        "state": "complete",
+                        "loaded": file_size,
+                        "total": file_size,
+                        "id": 0,
+                        "assetKey": asset_key,
+                        "label": "document"
+                    }
+                ],
+                "useNewImporter": True,
+                "importerFlags": {}
+            }
+        )
+
+        # Response is either a task ID string or a dict with taskId
+        task_id = None
+        if isinstance(response, str):
+            task_id = response
+        elif isinstance(response, dict) and 'taskId' in response:
+            task_id = response['taskId']
+
+        if task_id:
+            # Poll for completion
+            import time
+            for i in range(30):
+                time.sleep(2)
+                task_result = self.authed_request(f'workerTasks?workerTaskId={task_id}')
+
+                if not task_result.get('isProcessing'):
+                    # Task complete
+                    if 'output' in task_result:
+                        output = task_result['output']
+                        if 'doc' in output and not output.get('error'):
+                            doc = output['doc']
+                            # Apply the imported document to the pub
+                            self.replace_pub_text(pubId, attributes={}, doc=doc)
+                            return task_result
+                        elif 'error' in output:
+                            raise Exception(f"Import failed: {output['error']}")
+                    return task_result
+
+            raise Exception("Import timed out")
+
+        return response
+
+    def upload_file(self, file_path):
+        """Upload a file to PubPub's storage (AWS S3) and get a URL.
+
+        Args:
+            file_path: Local path to the file to upload
+
+        Returns:
+            URL of the uploaded file
+        """
+        import os
+        import mimetypes
+        import uuid
+
+        # Get upload policy
+        file_name = os.path.basename(file_path)
+        mime_type = mimetypes.guess_type(file_path)[0] or 'application/octet-stream'
+
+        policy_response = self.authed_request(
+            path=f'uploadPolicy?contentType={mime_type}',
+            method='GET'
+        )
+
+        # Read file
+        with open(file_path, 'rb') as f:
+            file_data = f.read()
+
+        # Build S3 upload URL and fields
+        bucket = policy_response.get('bucket', 'assets.pubpub.org')
+        upload_url = f'https://s3.amazonaws.com/{bucket}'
+
+        # Generate unique key for the file
+        unique_key = f'{uuid.uuid4().hex}/{file_name}'
+
+        # S3 POST form fields
+        form_data = {
+            'key': unique_key,
+            'acl': policy_response.get('acl', 'public-read'),
+            'Content-Type': mime_type,
+            'AWSAccessKeyId': policy_response.get('awsAccessKeyId'),
+            'Policy': policy_response.get('policy'),
+            'Signature': policy_response.get('signature'),
+            'success_action_status': '200',
+        }
+
+        # Upload using multipart form
+        files = {'file': (file_name, file_data, mime_type)}
+
+        upload_response = self.requests.post(
+            upload_url,
+            data=form_data,
+            files=files
+        )
+        upload_response.raise_for_status()
+
+        # Return the file URL
+        return f'https://{bucket}/{unique_key}'
+
+    def import_html_to_pub(self, pubId, html_content, file_name="import.html"):
+        """Import HTML content directly into a pub.
+
+        This is a convenience method that uploads HTML content and imports it.
+
+        Args:
+            pubId: The pub ID to import into
+            html_content: HTML string to import
+            file_name: Name for the temporary file
+
+        Returns:
+            The result of the import operation
+        """
+        import tempfile
+        import os
+
+        # Write HTML to a temp file
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.html', delete=False, encoding='utf-8') as f:
+            f.write(html_content)
+            temp_path = f.name
+
+        try:
+            # Get file size
+            file_size = os.path.getsize(temp_path)
+            # Upload and import
+            file_url = self.upload_file(temp_path)
+            return self.import_to_pub(pubId, file_url, file_name, file_size)
+        finally:
+            # Clean up temp file
+            os.unlink(temp_path)
+
     def workertaskpoll(self, task_id, sleep=1, retry=10):
         return utils_retry(1, 10)(self.workertask)(task_id)
 
