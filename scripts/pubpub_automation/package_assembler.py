@@ -54,6 +54,7 @@ class EvaluationData:
     """Data for a single evaluation."""
     ratings: Dict[str, Union[Dict, float, int, str]]
     review_text: Optional[str] = None
+    summary: Optional[str] = None  # Brief summary of the evaluation
     evaluator_name: Optional[str] = None
     evaluator_affiliation: Optional[str] = None
     evaluator_orcid: Optional[str] = None
@@ -73,6 +74,7 @@ class EvaluationData:
             'is_public': self.is_public,
             'ratings': self.ratings,
             'review_text': self.review_text,
+            'summary': self.summary,
             'comments': self.comments
         }
 

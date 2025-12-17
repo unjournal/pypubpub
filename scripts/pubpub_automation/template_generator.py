@@ -84,23 +84,35 @@ class TemplateGenerator:
         return '\n'.join(rows)
 
     def _generate_full_ratings_table(self, evaluations: List[Dict]) -> str:
-        """Generate the full ratings comparison table."""
+        """Generate the full ratings comparison table.
+
+        Two header rows:
+        - Row 1: Empty | Evaluator 1 [Name] | (empty) | (empty) | Evaluator 2 [Name] | ...
+        - Row 2: Rating category | Rating (0-100) | 90% CI | Comments | Rating (0-100) | ...
+        """
         num_evals = len(evaluations)
         rows = ['<table>']
 
-        # Header row 1: Rating category + evaluator names spanning 3 columns each
+        # Header row 1: Evaluator names
         rows.append('  <tr>')
-        rows.append('    <th rowspan="2"><strong>Rating category</strong></th>')
-        for evaluation in evaluations:
+        rows.append('    <th></th>')  # Empty cell above "Rating category"
+        for i, evaluation in enumerate(evaluations, 1):
             name = evaluation.get('name', 'Anonymous')
-            rows.append(f'    <th colspan="3"><strong>{name}</strong></th>')
+            # Format: "Evaluator X [Name]" with Evaluator X bold, name not bold
+            if name and name != f'Evaluator {i}' and name != 'Anonymous':
+                rows.append(f'    <th><strong>Evaluator {i}</strong> {name}</th>')
+            else:
+                rows.append(f'    <th><strong>Evaluator {i}</strong> Anonymous</th>')
+            rows.append('    <th></th>')  # Empty cell for 90% CI column
+            rows.append('    <th></th>')  # Empty cell for Comments column
         rows.append('  </tr>')
 
-        # Header row 2: Rating | 90% CI | Comments for each evaluator
+        # Header row 2: Column labels
         rows.append('  <tr>')
+        rows.append('    <th><strong>Rating category</strong></th>')
         for _ in evaluations:
             rows.append('    <th><strong>Rating (0-100)</strong></th>')
-            rows.append('    <th><strong>90% CI (0-100)*</strong></th>')
+            rows.append('    <th><strong>90% CI</strong></th>')
             rows.append('    <th><strong>Comments</strong></th>')
         rows.append('  </tr>')
 
@@ -127,25 +139,38 @@ class TemplateGenerator:
         return '\n'.join(rows)
 
     def _generate_journal_tier_table(self, evaluations: List[Dict]) -> str:
-        """Generate the journal ranking tiers table."""
+        """Generate the journal ranking tiers table.
+
+        Two header rows:
+        - Row 1: Empty | Evaluator 1 [Name] | (empty) | (empty) | Evaluator 2 [Name] | ...
+        - Row 2: Judgment | Ranking tier (0-5) | 90% CI | Comments | Ranking tier (0-5) | ...
+        """
         num_evals = len(evaluations)
-        total_cols = 1 + (num_evals * 2)  # First col + 2 cols per evaluator
+        total_cols = 1 + (num_evals * 3)  # First col + 3 cols per evaluator (tier, CI, comments)
 
         rows = ['<table>']
 
-        # Header row 1: empty + evaluator names spanning 2 columns each
+        # Header row 1: Evaluator names
         rows.append('  <tr>')
-        rows.append('    <th rowspan="2"></th>')
-        for evaluation in evaluations:
+        rows.append('    <th></th>')  # Empty cell above "Judgment"
+        for i, evaluation in enumerate(evaluations, 1):
             name = evaluation.get('name', 'Anonymous')
-            rows.append(f'    <th colspan="2"><strong>{name}</strong></th>')
+            # Format: "Evaluator X [Name]" with Evaluator X bold, name not bold
+            if name and name != f'Evaluator {i}' and name != 'Anonymous':
+                rows.append(f'    <th><strong>Evaluator {i}</strong> {name}</th>')
+            else:
+                rows.append(f'    <th><strong>Evaluator {i}</strong> Anonymous</th>')
+            rows.append('    <th></th>')  # Empty cell for 90% CI column
+            rows.append('    <th></th>')  # Empty cell for Comments column
         rows.append('  </tr>')
 
-        # Header row 2: Ranking tier | 90% CI for each evaluator
+        # Header row 2: Column labels
         rows.append('  <tr>')
+        rows.append('    <th><strong>Judgment</strong></th>')
         for _ in evaluations:
             rows.append('    <th><strong>Ranking tier (0-5)</strong></th>')
             rows.append('    <th><strong>90% CI</strong></th>')
+            rows.append('    <th><strong>Comments</strong></th>')
         rows.append('  </tr>')
 
         # Row 1: Normative (should)
@@ -156,8 +181,10 @@ class TemplateGenerator:
             rating_data = ratings.get('journal_tier_normative')
             mid_val = self._get_rating_value(rating_data)
             ci_str = self._get_ci_string(rating_data)
+            comment = evaluation.get('comments', {}).get('journal', '') if isinstance(evaluation.get('comments'), dict) else ''
             rows.append(f'    <td>{mid_val}</td>')
             rows.append(f'    <td>{ci_str}</td>')
+            rows.append(f'    <td>{comment}</td>')
         rows.append('  </tr>')
 
         # Row 2: Predictive (will)
@@ -170,20 +197,13 @@ class TemplateGenerator:
             ci_str = self._get_ci_string(rating_data)
             rows.append(f'    <td>{mid_val}</td>')
             rows.append(f'    <td>{ci_str}</td>')
+            rows.append(f'    <td></td>')  # Empty comment for predictive row
         rows.append('  </tr>')
 
-        # Explanation row spanning all columns
+        # Explanation row - 2 cells only (link in left, tier descriptions in right)
         rows.append('  <tr>')
-        rows.append(f'    <td colspan="{total_cols}">')
-        rows.append(f'      <a href="{self.LINKS["journal_tiers"]}">See here</a> for more details on these tiers.<br/><br/>')
-        rows.append('      <em>We summarize these as:</em><br/>')
-        rows.append('      • 0.0: Marginally respectable/Little to no value<br/>')
-        rows.append('      • 1.0: OK/Somewhat valuable<br/>')
-        rows.append('      • 2.0: Marginal B-journal/Decent field journal<br/>')
-        rows.append('      • 3.0: Top B-journal/Strong field journal<br/>')
-        rows.append('      • 4.0: Marginal A-Journal/Top field journal<br/>')
-        rows.append('      • 5.0: A-journal/Top journal')
-        rows.append('    </td>')
+        rows.append(f'    <td><a href="{self.LINKS["journal_tiers"]}">See here</a> for more details on these tiers.</td>')
+        rows.append('    <td><em>We summarize these as:</em><br/>• 0.0: Marginally respectable/Little to no value<br/>• 1.0: OK/Somewhat valuable<br/>• 2.0: Marginal B-journal/Decent field journal<br/>• 3.0: Top B-journal/Strong field journal<br/>• 4.0: Marginal A-Journal/Top field journal<br/>• 5.0: A-journal/Top journal</td>')
         rows.append('  </tr>')
 
         rows.append('</table>')
