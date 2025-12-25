@@ -2,6 +2,8 @@
 
 
 
+import glob
+import os
 import re
 from pypubpub.utils import get_time_string
 from .. import Pubshelper_v6, Migratehelper_v6
@@ -55,6 +57,8 @@ class RePEcPopulator:
 
     def build_metadata_file(self):
         """ Build a RePEc.org metadata file for a Pub"""
+        existing_handles, existing_numbers = self._load_existing_metadata()
+        self._sync_numbering_counter(existing_numbers)
         # get list of pubpub id, url, tite, description, authors
         self.pubs_all = self.pubhelper.get_many_pubs(limit=500, ordering={'field': 'creationDate', 'direction': 'ASC'}
                                                      
@@ -63,10 +67,16 @@ class RePEcPopulator:
         # self.pubs_all = self.remove_blacklisted_pubs(self.pubs_all)
         # go thru list and make metadata object
         self.pubs_metadata=[]
+        seen_handles = set()
         # write metadata object to file(s)
         with open(f"{self.outputdir}/evalX_{get_time_string()}.rdf", "w") as f:
             for pub in self.pubs_all['pubsById'].values():
                 authors = self.parse_pub_authors(pub)
+                handle = self.build_handle(pub)
+                handle_key = handle.lower()
+                if handle_key in existing_handles or handle_key in seen_handles:
+                    continue
+                number = self.number_counter(pub['createdAt'][:4])
                 m = self.buildMetadata(
                             id=pub['id'], 
                             url=f"""{self.pubhelper.community_url}/pub/{pub['slug']}""",
@@ -78,12 +88,13 @@ class RePEcPopulator:
                             doi=pub['doi'],
                             creation_date=pub['createdAt'][:10],
                             jel_codes=None,
-                            handle=self.build_handle(pub),
-                            number=self.number_counter(pub['createdAt'][:4]),
+                            handle=handle,
+                            number=number,
                             abstract=pub['description'],
                             # publication_status=pub1['publicationStatus'],
 
                 )
+                seen_handles.add(handle_key)
                 self.pubs_metadata.append(m)
                 f.write(m)
                 f.write("\n\n")
@@ -155,15 +166,55 @@ File-Format: text/html
         pubs2 = [p for p in pubs if not any([fn(p) for fn in self.blacklist_match_fns]) ] if self.blacklist_match_fns else pubs2
         return pubs2
 
+    def _load_existing_metadata(self):
+        """Load existing handles and numbering from previous RDF files."""
+        handles = set()
+        max_numbers = {}
+        if not self.inputdir or not os.path.isdir(self.inputdir):
+            return handles, max_numbers
+        rdf_files = glob.glob(os.path.join(self.inputdir, f"*{self.format_suffix}"))
+        for path in rdf_files:
+            try:
+                with open(path, "r", encoding="utf-8", errors="replace") as f:
+                    for line in f:
+                        line = line.strip()
+                        if line.startswith("Handle:"):
+                            handle = line.split(":", 1)[1].strip()
+                            if handle:
+                                handles.add(handle.lower())
+                        elif line.startswith("Number:"):
+                            number = line.split(":", 1)[1].strip()
+                            match = re.match(r"(\d{4})-(\d+)", number)
+                            if match:
+                                year, count = match.groups()
+                                max_numbers[year] = max(max_numbers.get(year, 0), int(count))
+            except OSError:
+                continue
+        return handles, max_numbers
+
+    def _sync_numbering_counter(self, existing_numbers):
+        """Ensure numbering starts after the highest existing number per year."""
+        for year, max_number in existing_numbers.items():
+            next_number = max_number + 1
+            current = self.numbering_counter.get(year, 1)
+            self.numbering_counter[year] = max(current, next_number)
+
     @staticmethod
     def parse_pub_authors( pub, blacklist=[], blacklist_0=["Unjournal Admin (NA)", "Unjournal Admin"]):
         """ Parse the authors of a Pub blacklist and blacklist_0=["Unjournal Admin (NA)", "Unjournal Admin"] get merged, set blacklist_0=[] to not merge"""
         blacklist = blacklist + blacklist_0
         authors = [a["name"] or a["user"]["fullName"]  for a in pub['attributions'] if((a["name"] or a["user"]["fullName"]) and (a["isAuthor"]))]
-        authors = [a for a in authors if a not in  blacklist]
+        authors = [a.strip() for a in authors if a and a.strip()]
+        authors = [a for a in authors if a not in blacklist]
         authors = [a if(a!="Anonymous Anonymous") else "Anonymous" for a in authors]
         authors=[a for a in authors if (not a.startswith("Unjournal Admin") and not "(NA)" in a)]
-        return authors
+        seen = set()
+        deduped = []
+        for author in authors:
+            if author not in seen:
+                seen.add(author)
+                deduped.append(author)
+        return deduped
     
     @staticmethod
     def build_author_section(authors:list|str):
@@ -191,6 +242,5 @@ File-Format: text/html
             self.numbering_counter[year] = self.numbering_counter[year] + 1
         return f"{str(year)}-{str(n).zfill(2)}"
     
-
 
 

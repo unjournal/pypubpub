@@ -15,7 +15,12 @@
       "Bash(git add:*)",
       "Bash(chmod:*)",
       "Bash(sort:*)",
-      "Bash(done)"
+      "Bash(done)",
+      "WebFetch(domain:unjournal.pubpub.org)",
+      "Bash(venv/bin/python:*)",
+      "Bash(venv/bin/pip install:*)",
+      "Bash(curl:*)",
+      "Bash(ls:*)"
     ],
     "deny": [],
     "ask": []

@@ -146,6 +146,8 @@ class EvaluationPackageCreator:
             'title': package_data.paper.title,
             'authors': package_data.paper.authors,
             'doi': package_data.paper.doi,
+            'url': package_data.paper.url,
+            'year': package_data.paper.year,
         }
 
         summary_html = self._generate_summary_html(
@@ -268,9 +270,11 @@ class EvaluationPackageCreator:
         html += self.template_generator._generate_claims_table(evaluations)
 
         # References
-        html += '''
+        html += f'''
 <h2>References</h2>
-<p><em>[References to be added]</em></p>
+<ol>
+  <li>{self._format_reference_html(paper_info)}</li>
+</ol>
 '''
 
         # Manager's discussion
@@ -350,8 +354,37 @@ class EvaluationPackageCreator:
 
             html += '</table>\n'
 
-        html += '</body>\n</html>'
+        html += f'''
+<h2>References</h2>
+<ol>
+  <li>{self._format_reference_html(paper_info)}</li>
+</ol>
+</body>
+</html>
+'''
         return html
+
+    @staticmethod
+    def _format_reference_html(paper_info: Dict) -> str:
+        """Build a single reference line for the reviewed paper."""
+        title = paper_info.get('title', 'Untitled Paper')
+        authors = paper_info.get('authors') or []
+        if isinstance(authors, str):
+            authors = [authors]
+        authors_str = ', '.join(a for a in authors if a) or 'Unknown author'
+        year = paper_info.get('year')
+        year_str = f" ({year})" if year else ""
+        doi = paper_info.get('doi')
+        url = paper_info.get('url')
+        doi_url = None
+        if doi:
+            doi_url = doi if doi.startswith('http') else f"https://doi.org/{doi}"
+        link = doi_url or url
+        if link:
+            link_html = f' <a href="{link}">{link}</a>'
+        else:
+            link_html = ''
+        return f"{authors_str}{year_str}. {title}.{link_html}"
 
     def _import_html_via_word(self, pub_id: str, html_content: str, filename: str):
         """Import HTML content to a pub using Word document conversion for proper table rendering."""

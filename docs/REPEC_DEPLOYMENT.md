@@ -1,335 +1,222 @@
-# RePEc Deployment Guide for The Unjournal
+# RePEc Deployment Guide
 
-This guide explains how to generate and deploy RePEc RDF metadata files from unjournal.pubpub.org to your Linode server for RePEc and Google Scholar indexing.
+Complete guide for generating and deploying RePEc RDF files for The Unjournal evaluations.
 
 ## Quick Start
 
 ```bash
-# Generate fresh RDF files and deploy to Linode
-python scripts/generate_and_deploy_repec.py
+# 1. Generate RDF files from PubPub
+venv/bin/python -c "
+from pypubpub.repec import RePEcPopulator
+from pypubpub import Pubshelper_v6
+import conf
 
-# Generate only (no deployment)
-python scripts/generate_and_deploy_repec.py --skip-deploy
+helper = Pubshelper_v6(conf.email, conf.password, conf.community_url, conf.community_id)
+helper.login()
 
-# Dry run (see what would happen)
-python scripts/generate_and_deploy_repec.py --dry-run
+populator = RePEcPopulator(helper, './repec_rdfs', './repec_rdfs')
+populator.build_metadata_file()
+"
+
+# 2. Extract recent records (e.g., 2025 Q4)
+# Edit the script to extract the range you need
+
+# 3. Enrich with abstracts from PubPub
+venv/bin/python scripts/enrich_repec_abstracts.py repec_rdfs/eval2025_04.rdf --output repec_rdfs/eval2025_04_temp.rdf
+
+# 4. Clean Unicode and add placeholders
+venv/bin/python scripts/clean_repec_rdf.py repec_rdfs/eval2025_04_temp.rdf repec_rdfs/eval2025_04.rdf
+
+# 5. Deploy to Linode server
+./scripts/deploy_repec_rdf.sh repec_rdfs/eval2025_04.rdf
 ```
 
-## What This Does
+## File Naming Convention
 
-1. **Connects to unjournal.pubpub.org** - Fetches all published evaluation pubs
-2. **Generates RDF files** - Creates RePEc ReDIF-Paper metadata for each pub
-3. **Deploys to Linode** - Uploads via SCP to your RePEc archive directory
-4. **Triggers indexing** - Notifies RePEc to re-crawl (if automated)
+RePEc files follow a quarterly naming pattern:
 
-## Prerequisites
+- `eval2024_01.rdf` - Q1 2024 (Jan-Mar)
+- `eval2024_02.rdf` - Q2 2024 (Apr-Jun)
+- `eval2024_03.rdf` - Q3 2024 (Jul-Sep)  
+- `eval2024_04.rdf` - Q4 2024 (Oct-Dec)
+- `eval2025_01.rdf` - Q1 2025 (Jan-Mar)
+- etc.
 
-### 1. PubPub Credentials (Optional for Public Pubs)
+## Record Numbering
 
-Create `tests/conf_settings.py` (copy from template):
+Records are numbered sequentially:
+- Format: `2025-XX` where XX increments for each new evaluation
+- Example: 2025-47, 2025-48, 2025-49, etc.
 
-```python
-community_url = "https://unjournal.pubpub.org"
-community_id = "d28e8e57-7f59-486b-9395-b548158a27d6"
-email = "your@email.com"  # Optional for public pubs
-password = "your_password"  # Optional for public pubs
+To find the next available number, check the latest deployed file or query PubPub.
+
+## Abstract Types
+
+### Real Abstracts (Preferred)
+Extracted from "Abstract" heading on PubPub pages:
+- Individual evaluations (e1*, e2*)
+- Some evaluation summaries
+- Some author responses
+
+### Placeholder Abstracts (When No Abstract Exists)
+
+**For Evaluations:**
+```
+This is an evaluation of the paper "PAPER TITLE" for The Unjournal. Please see the discussion below.
 ```
 
-Or set environment variables:
+**For Author Responses:**
+```
+This is an author response to the Unjournal's evaluation(s) of the paper "PAPER TITLE". Please see the discussion below.
+```
+
+## Scripts
+
+### 1. enrich_repec_abstracts.py
+Extracts abstracts from PubPub pages.
+
+**Usage:**
 ```bash
-export PUBPUB_COMMUNITY_URL="https://unjournal.pubpub.org"
-export PUBPUB_COMMUNITY_ID="d28e8e57-7f59-486b-9395-b548158a27d6"
-export PUBPUB_EMAIL="your@email.com"
-export PUBPUB_PASSWORD="your_password"
+venv/bin/python scripts/enrich_repec_abstracts.py <input.rdf> --output <output.rdf> [--limit N]
 ```
 
-### 2. SSH Access to Linode Server
+**What it does:**
+- Fetches each evaluation page from PubPub
+- Searches for "Abstract" heading (h1/h2/h3)
+- Extracts paragraphs until next heading
+- Rate limited (2 second delay between requests)
 
-You need SSH access to your Linode server (45.56.106.79):
+### 2. clean_repec_rdf.py
+Fixes Unicode issues and adds placeholders.
 
+**Usage:**
 ```bash
-# Test connection
-ssh root@45.56.106.79
-
-# Set up SSH key if you haven't already (recommended)
-ssh-copy-id root@45.56.106.79
+venv/bin/python scripts/clean_repec_rdf.py <input.rdf> [output.rdf]
 ```
 
-### 3. RePEc Archive Directory Structure
+**What it does:**
+- Converts all Unicode to ASCII (â→', â→", etc.)
+- Adds placeholder abstracts where missing
+- Detects author responses vs evaluations
+- Outputs pure ASCII file
 
-On your Linode server, you need a proper RePEc archive structure:
+### 3. deploy_repec_rdf.sh
+Deploys to Linode server with backup.
 
-```
-/var/lib/repec/
-└── rdf/
-    ├── bjnecon.rdf           # Archive metadata
-    ├── bjnevalua.rdf          # Series metadata
-    ├── unjournal_eval_YYYYMMDD.rdf  # Evaluation records
-    └── latest.rdf -> unjournal_eval_YYYYMMDD.rdf
-```
-
-## Server Setup
-
-### Initial Setup on Linode
-
-SSH into your server and create the directory structure:
-
+**Usage:**
 ```bash
-ssh root@45.56.106.79
-
-# Create RePEc directory
-mkdir -p /var/lib/repec/rdf
-cd /var/lib/repec/rdf
-
-# Create archive metadata (bjnecon.rdf)
-cat > bjnecon.rdf << 'EOF'
-Template-Type: ReDIF-Archive 1.0
-Handle: RePEc:bjn
-Name: The Unjournal Evaluations
-Maintainer-Email: contact@unjournal.org
-Description: Open evaluations of research papers by The Unjournal
-URL: https://unjournal.pubpub.org/
-Maintainer-Name: The Unjournal
-EOF
-
-# Create series metadata (bjnevalua.rdf)
-cat > bjnevalua.rdf << 'EOF'
-Template-Type: ReDIF-Series 1.0
-Name: The Unjournal Evaluation Papers
-Provider-Name: The Unjournal
-Provider-Homepage: https://unjournal.org
-Provider-Institution: RePEc:edi:bjnecon
-Maintainer-Email: contact@unjournal.org
-Type: ReDIF-Paper
-Handle: RePEc:bjn:evalua
-Description: Research evaluations and evaluation summaries published by The Unjournal
-Classification-JEL: A14
-EOF
-
-# Set permissions
-chmod 644 *.rdf
+./scripts/deploy_repec_rdf.sh <rdf_file> [server]
 ```
 
-### Optional: Create Auto-Update Script
+**What it does:**
+- Creates timestamped backup of existing file
+- Uploads new file (same name, replaces old)
+- Verifies upload
+- Lists recent backups
 
-Create a script on the server to notify RePEc of updates:
+## Server Details
 
-```bash
-# Create update script
-cat > /usr/local/bin/repec-update.sh << 'EOF'
-#!/bin/bash
-# Update RePEc last-modified timestamp
-touch /var/lib/repec/rdf/latest.rdf
-echo "RePEc files updated at $(date)"
-# Add any additional notification steps here
-EOF
+- **Server:** 45.56.106.79
+- **User:** root
+- **RDF Directory:** /var/lib/repec/rdf/
+- **Archive Directory:** /var/lib/repec/rdf/archive/
 
-chmod +x /usr/local/bin/repec-update.sh
-```
+## Deployment Workflow
 
-## Usage Examples
+1. **Generate:** Create RDF from PubPub API
+2. **Extract:** Pull out recent records (current quarter)
+3. **Enrich:** Add real abstracts from PubPub pages
+4. **Clean:** Fix Unicode, add placeholders
+5. **Deploy:** Upload to server with backup
+6. **Verify:** Check file on server
+7. **Wait:** RePEc crawls (1-2 weeks)
+8. **Check:** Verify on IDEAS: https://ideas.repec.org/s/bjn/evalua.html
+9. **Wait:** Google Scholar indexes (2-4 weeks)
+10. **Confirm:** Search Google Scholar
 
-### Generate Fresh RDF and Deploy
+## Quality Checklist
 
-```bash
-# Standard usage - generates and deploys
-python scripts/generate_and_deploy_repec.py
+Before deploying, verify:
 
-# Output:
-# 📚 Fetching pubs from https://unjournal.pubpub.org...
-# 📝 Generating RePEc RDF metadata...
-# ✅ Generated 87 records
-# 📄 RDF file: repec_rdfs/evalX_123456.rdf
-# 🚀 Deploying to Linode server 45.56.106.79...
-# ✅ Successfully uploaded
-# ✅ Complete!
-```
-
-### Generate Only (Test First)
-
-```bash
-# Generate without deploying (useful for testing)
-python scripts/generate_and_deploy_repec.py --skip-deploy
-```
-
-### Dry Run (See What Would Happen)
-
-```bash
-# Preview without making changes
-python scripts/generate_and_deploy_repec.py --dry-run
-```
-
-### Custom Server Settings
-
-```bash
-# Use different server/paths
-python scripts/generate_and_deploy_repec.py \
-  --server my.server.com \
-  --user repec \
-  --remote-path /home/repec/archive/
-```
-
-## RDF File Format
-
-The generated RDF files use the ReDIF-Paper 1.0 template format:
-
-```
-Template-Type: ReDIF-Paper 1.0
-Author-Name: Jane Doe
-Author-Name: John Smith
-Title: Evaluation Summary and Metrics: "Paper Title"
-Abstract: Evaluation Summary and Metrics of "Paper Title" for The Unjournal.
-DOI: https://doi.org/10.21428/d28e8e57.abc123
-Publication-Status: Published in The Unjournal
-File-URL: https://unjournal.pubpub.org/pub/evalsum-paper-slug
-File-Format: text/html
-Creation-Date: 2025-08-31
-Handle: RePEc:bjn:evalua:evalsum-paper-slug
-Number: 2025-42
-```
-
-## How RePEc Indexing Works
-
-1. **You upload RDF files** to your server's RePEc archive directory
-2. **RePEc crawlers** periodically scan registered archives (usually daily)
-3. **RePEc processes** the RDF files and indexes the records
-4. **Records appear** on RePEc IDEAS: https://ideas.repec.org/s/bjn/evalua.html
-5. **Google Scholar** picks up records from RePEc (usually within days)
-
-### Timeline
-
-- **Upload**: Immediate
-- **RePEc indexing**: 1-24 hours (next crawler run)
-- **IDEAS display**: After indexing completes
-- **Google Scholar**: 1-7 days after RePEc indexes
-
-## Registering Your Archive with RePEc
-
-If this is your first time, you need to register your archive:
-
-1. Visit: https://authors.repec.org/
-2. Create account and register your archive
-3. Provide archive details:
-   - **Handle**: RePEc:bjn
-   - **Name**: The Unjournal Evaluations
-   - **URL**: http://45.56.106.79/repec/ (or your domain)
-   - **Maintainer**: Your contact info
-
-4. RePEc will start crawling your archive automatically
-
-## Verification
-
-### Check Files on Server
-
-```bash
-# List RDF files
-ssh root@45.56.106.79 "ls -lah /var/lib/repec/rdf/"
-
-# View latest file
-ssh root@45.56.106.79 "cat /var/lib/repec/rdf/latest.rdf | head -30"
-```
-
-### Check RePEc Indexing
-
-After upload, verify your records appear on RePEc:
-
-- **Archive**: https://ideas.repec.org/s/bjn/evalua.html
-- **Individual records**: https://ideas.repec.org/p/bjn/evalua/your-slug.html
-
-### Check Google Scholar
-
-Search for your paper titles or DOIs in Google Scholar:
-- https://scholar.google.com/
-
-Records should appear with citation "Published in The Unjournal" and link to PubPub.
+- [ ] File is pure ASCII (use `file` command)
+- [ ] All records have abstracts (real or placeholder)
+- [ ] No paper abstracts (only evaluation/response abstracts)
+- [ ] Author responses have correct placeholder format
+- [ ] Record numbers are sequential and correct
+- [ ] File naming follows quarterly convention
+- [ ] All required fields present (Title, Author-Name, DOI, etc.)
 
 ## Troubleshooting
 
-### Permission Denied on SCP
-
+### Unicode Issues
 ```bash
-# Add your SSH key to the server
-ssh-copy-id root@45.56.106.79
+# Check for non-ASCII characters
+grep --color='auto' -P -n "[^\x00-\x7F]" file.rdf
 
-# Or check server permissions
-ssh root@45.56.106.79 "ls -ld /var/lib/repec/rdf/"
+# Clean with script
+venv/bin/python scripts/clean_repec_rdf.py file.rdf file_clean.rdf
 ```
 
-### RePEc Not Crawling
-
-1. **Verify archive registration**: Check https://authors.repec.org/
-2. **Check file accessibility**: Make sure RDF files are publicly accessible
-3. **Manual notification**: Contact RePEc support to trigger a crawl
-4. **Check logs**: If you have web server logs, check for RePEc crawler
-
-### Google Scholar Not Indexing
-
-1. **Wait longer**: Can take up to 7 days
-2. **Verify RePEc**: Must be on RePEc first
-3. **Check DOIs**: Make sure DOIs are valid and registered
-4. **Check robots.txt**: Ensure your server allows crawlers
-
-### Missing Pubs in RDF
-
-The RDF generator filters out:
-- Template pubs (slug contains "template")
-- Admin pubs (author: "Unjournal Admin")
-- Unpublished pubs (unless you provide credentials)
-
-To include unpublished pubs, provide login credentials in `conf_settings.py`.
-
-## Automated Updates
-
-### Cron Job (Recommended)
-
-Set up a weekly cron job to automatically update RePEc:
-
+### Missing Abstracts
 ```bash
-# On your local machine or CI server
-crontab -e
+# Find empty abstracts
+grep -n "^Abstract: $\|^Abstract:$" file.rdf
 
-# Add this line (runs every Sunday at 2am)
-0 2 * * 0 cd /path/to/pypubpub && python scripts/generate_and_deploy_repec.py
+# Re-run cleaning to add placeholders
+venv/bin/python scripts/clean_repec_rdf.py file.rdf file_fixed.rdf
 ```
 
-### GitHub Actions (Alternative)
+### Deployment Issues
+```bash
+# Check SSH access
+ssh root@45.56.106.79 "ls -lh /var/lib/repec/rdf/"
 
-Create `.github/workflows/repec-update.yml`:
-
-```yaml
-name: Update RePEc
-on:
-  schedule:
-    - cron: '0 2 * * 0'  # Weekly on Sunday at 2am UTC
-  workflow_dispatch:  # Manual trigger
-
-jobs:
-  update:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.12'
-      - name: Install dependencies
-        run: pip install -e .
-      - name: Generate and deploy
-        env:
-          PUBPUB_COMMUNITY_URL: ${{ secrets.PUBPUB_COMMUNITY_URL }}
-          PUBPUB_COMMUNITY_ID: ${{ secrets.PUBPUB_COMMUNITY_ID }}
-        run: python scripts/generate_and_deploy_repec.py
+# Manual upload if script fails
+scp file.rdf root@45.56.106.79:/var/lib/repec/rdf/
 ```
 
-## Related Resources
+## Google Scholar Citation Linking
 
-- **RePEc Registration**: https://authors.repec.org/
-- **ReDIF Format Spec**: https://ideas.repec.org/t/rdf.html
-- **RePEc IDEAS**: https://ideas.repec.org/
-- **Google Scholar**: https://scholar.google.com/
-- **The Unjournal**: https://unjournal.org/
+For evaluations to appear as citations:
 
-## Questions?
+1. **Evaluations must cite the paper** - Add to "References" section on PubPub
+2. **Full text must be crawlable** - PubPub pages are public
+3. **Wait for indexing** - Can take 4-8 weeks total
 
-- Check server logs: `ssh root@45.56.106.79 "tail /var/log/syslog"`
-- Test SCP manually: `scp test.txt root@45.56.106.79:/var/lib/repec/rdf/`
-- Contact RePEc support: https://ideas.repec.org/gettsup.html
+Google Scholar detects citations by parsing the full text, not from RePEc metadata.
+
+## Archive Organization
+
+```
+repec_rdfs/
+├── eval_07_2023.rdf          # Production files
+├── eval2024_01.rdf
+├── eval2024_02.rdf
+├── eval2024_03.rdf
+├── eval2025_01.rdf
+├── eval2025_02.rdf
+├── eval2025_03.rdf
+├── eval2025_04.rdf            # Latest production file
+└── archive/
+    ├── evalX_*.rdf            # Full exports
+    └── 2025_04_versions/      # Intermediate files for eval2025_04
+        ├── eval2025_04_complete.rdf
+        ├── eval2025_04_enriched.rdf
+        ├── eval2025_04_test.rdf
+        └── eval2025_04_enriched_test.rdf
+```
+
+## Related Documentation
+
+- **ABSTRACT_EXTRACTION_STATUS.md** - Latest extraction status
+- **docs/archive/** - Historical documentation
+- **pypubpub/repec/__init__.py** - RePEcPopulator class
+- **scripts/generate_and_deploy_repec.py** - Automated generation script
+
+## Support
+
+For issues:
+1. Check troubleshooting section above
+2. Review script output for errors
+3. Verify file format with `file` command
+4. Check server backups if needed

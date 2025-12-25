@@ -334,7 +334,7 @@ class TemplateGenerator:
         # Section 8: References
         # ============================================================
         sections.append('\n## References\n')
-        sections.append('\n*[References to be added]*\n')
+        sections.append('\n1. ' + self._format_reference_markdown(paper_info) + '\n')
 
         # ============================================================
         # Section 9: Evaluation Manager's Discussion
@@ -450,7 +450,30 @@ class TemplateGenerator:
             if evaluation_data.get('important_implication'):
                 sections.append(f"\n**Important implication:** {evaluation_data['important_implication']}\n")
 
+        # References (for Scholar-friendly parsing)
+        sections.append('\n## References\n')
+        sections.append('\n1. ' + self._format_reference_markdown(paper_info) + '\n')
+
         return ''.join(sections)
+
+    @staticmethod
+    def _format_reference_markdown(paper_info: Dict) -> str:
+        """Build a single reference line for the reviewed paper."""
+        title = paper_info.get('title', 'Untitled Paper')
+        authors = paper_info.get('authors') or []
+        if isinstance(authors, str):
+            authors = [authors]
+        authors_str = ', '.join(a for a in authors if a) or 'Unknown author'
+        year = paper_info.get('year')
+        year_str = f" ({year})" if year else ""
+        doi = paper_info.get('doi')
+        url = paper_info.get('url')
+        doi_url = None
+        if doi:
+            doi_url = doi if doi.startswith('http') else f"https://doi.org/{doi}"
+        link = doi_url or url
+        link_str = f" {link}" if link else ""
+        return f"{authors_str}{year_str}. {title}.{link_str}"
 
     def generate_complete_package(
         self,
