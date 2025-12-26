@@ -11,8 +11,8 @@ fi
 
 LOCAL_FILE="$1"
 SERVER="${2:-root@45.56.106.79}"
-REMOTE_DIR="/var/lib/repec/rdf"
-BACKUP_DIR="/var/lib/repec/rdf/archive"
+REMOTE_DIR="/var/ftp/RePEc/bjn/evalua"
+BACKUP_DIR="/var/ftp/RePEc/bjn/evalua/archive"
 
 # Extract filename
 FILENAME=$(basename "$LOCAL_FILE")
