@@ -20,7 +20,9 @@
       "Bash(venv/bin/python:*)",
       "Bash(venv/bin/pip install:*)",
       "Bash(curl:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(for file in repec_rdfs/eval202*.rdf)",
+      "Bash(do)"
     ],
     "deny": [],
     "ask": []

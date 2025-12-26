@@ -3,13 +3,22 @@
 ## Completed Tasks
 
 ### 1. RDF File Generation ✓
-- Created `repec_rdfs/eval2025_04.rdf` with 22 records (2025-47 to 2025-68)
-- Covers evaluations published July-December 2025 (Q3-Q4)
+- **eval2025_04.rdf**: 22 records (2025-47 to 2025-68) - Q3-Q4 2025
+- **eval2025_03.rdf**: 33 records (2025-14 to 2025-46) - Q2 2025 (also updated)
 - Pure ASCII encoding - all Unicode issues fixed
+- Removed non-existent PDF references from eval2025_03.rdf
 
 ### 2. Abstract Enrichment ✓
+
+**eval2025_04.rdf:**
 - Extracted 17 real abstracts from PubPub "Abstract" sections
 - Added 5 placeholder abstracts for records without Abstract sections
+
+**eval2025_03.rdf:**
+- Extracted 29 real abstracts from PubPub "Abstract" sections
+- Added 4 placeholder abstracts (3 author responses, 1 evaluation)
+
+**Both files:**
 - Proper handling of author responses vs evaluations
 - **No paper abstracts included** (only evaluation/response abstracts)
 
@@ -30,6 +39,10 @@
 - Deploys to Linode with timestamped backup
 - Replaces old file (same name) to prevent duplicates
 - Verifies upload
+
+**remove_pdf_refs.py**
+- Removes non-existent PDF references from RDF files
+- PubPub /pdf URLs return 404, so only HTML versions are referenced
 
 ### 4. Repository Cleanup ✓
 
@@ -64,16 +77,26 @@ repec_rdfs/
 
 ## Ready for Deployment
 
-### File to Deploy
-**repec_rdfs/eval2025_04.rdf**
-- 22 records (2025-47 to 2025-68)
+### Files to Deploy
+
+**repec_rdfs/eval2025_04.rdf** (NEW)
+- 22 records (2025-47 to 2025-68) - Q3-Q4 2025
 - All abstracts filled (17 real, 5 placeholders)
 - Pure ASCII encoding
-- No Unicode issues
+- No PDF references
 - No paper abstracts
 
-### Deployment Command
+**repec_rdfs/eval2025_03.rdf** (UPDATED)
+- 33 records (2025-14 to 2025-46) - Q2 2025
+- All abstracts filled (29 real, 4 placeholders)
+- Pure ASCII encoding (removed é characters)
+- PDF references removed (33 non-existent /pdf URLs)
+- No paper abstracts
+
+### Deployment Commands
 ```bash
+# Deploy both files
+./scripts/deploy_repec_rdf.sh repec_rdfs/eval2025_03.rdf
 ./scripts/deploy_repec_rdf.sh repec_rdfs/eval2025_04.rdf
 ```
 
