@@ -32,7 +32,9 @@ class RePEcPopulator:
         self.inputdir = inputdir
         self.outputdir = outputdir
         self.blacklist_templates = blacklist_templates or RePEcPopulator.blacklist_templates_internal
-        self.blacklist = blacklist + blacklist_templates
+        # NB: combine with self.blacklist_templates, not the raw argument, so the
+        # internal template rules still apply when the caller passes none.
+        self.blacklist = blacklist + self.blacklist_templates
         self.blacklist_match_fns = blacklist_match_fns
         self.format_suffix = format_suffix
         self.file_options = file_options
@@ -50,9 +52,10 @@ class RePEcPopulator:
         },{
         "slug":"evalsummary"
         },{
+            # matched as a case-insensitive substring, not a regex
             "titleKeyword":"[template]"
         },{
-            "titleKeyword": r"(?i)\[template"
+            "titleRegex": r"(?i)\[template"
         }]
 
     def build_metadata_file(self):
@@ -63,8 +66,8 @@ class RePEcPopulator:
         self.pubs_all = self.pubhelper.get_many_pubs(limit=500, ordering={'field': 'creationDate', 'direction': 'ASC'}
                                                      
         )
-        # todo: remove blacklisted items
-        # self.pubs_all = self.remove_blacklisted_pubs(self.pubs_all)
+        # drop template/admin pubs before they reach the RDF
+        self.pubs_all = self.remove_blacklisted_pubs(self.pubs_all)
         # go thru list and make metadata object
         self.pubs_metadata=[]
         seen_handles = set()
@@ -145,26 +148,46 @@ File-Format: text/html
         return m
     
 
+    def is_blacklisted(self, pub):
+        """ True if a single pub matches any blacklist rule.
+
+            Rules are dicts keyed by 'slug', 'title', 'id' or 'doi' (exact match),
+            'titleKeyword' (case-insensitive substring of the title) or
+            'titleRegex' (regex searched against the title). A bare string rule
+            matches any of the id/slug/title/doi fields exactly.
+        """
+        fields = {k: (pub.get(k) or "") for k in ('id', 'slug', 'title', 'doi')}
+        title = fields['title']
+
+        for rule in self.blacklist:
+            if isinstance(rule, str):
+                if rule and rule in fields.values():
+                    return True
+                continue
+            if any(rule.get(k) is not None and rule[k] == fields[k] for k in fields):
+                return True
+            keyword = rule.get('titleKeyword')
+            if keyword and keyword.lower() in title.lower():
+                return True
+            pattern = rule.get('titleRegex')
+            if pattern and re.search(pattern, title):
+                return True
+
+        return any(fn(pub) for fn in self.blacklist_match_fns)
+
     def remove_blacklisted_pubs(self, pubs):
-        """ Remove blacklisted pubs from a list of pubs"""
-        strings_blacklist = [b for b in self.blacklist if  type(b)==str]
-        slug_blacklist = [b['slug'] for b in self.blacklist if 'slug' in b]
-        title_blacklist = [b['title'] for b in self.blacklist if 'title' in b]
-        title_keyword_blacklist = [b['titleKeyword'] for b in self.blacklist if 'titleKeyword' in b]
-        id_blacklist = [b['id'] for b in self.blacklist if 'id' in b]
-        doi_blacklist = [b['doi'] for b in self.blacklist if 'doi' in b]
-        pubs2 = [p for p in pubs['pubs'] 
-             if not ( 
-                 (p['doi']  in doi_blacklist)
-                 or (p['slug']  in slug_blacklist)
-                 or (p['title']  in title_blacklist)
-                 or (p['id']  in id_blacklist)
-                 
-                 or ( any([ re.match(k,p['title'] ) for k in title_keyword_blacklist]))
-                 or ( any([k in [p[i] for i in ['id', 'slug', 'title', 'doi' ] ] for k in strings_blacklist]))
-                 )]
-        pubs2 = [p for p in pubs if not any([fn(p) for fn in self.blacklist_match_fns]) ] if self.blacklist_match_fns else pubs2
-        return pubs2
+        """ Remove blacklisted pubs.
+
+            Accepts either the raw get_many_pubs() response (a dict with a
+            'pubsById' mapping) or a plain list of pubs, and returns the same
+            shape it was given.
+        """
+        if isinstance(pubs, dict):
+            if 'pubsById' not in pubs:
+                return pubs
+            kept = {k: p for k, p in pubs['pubsById'].items() if not self.is_blacklisted(p)}
+            return {**pubs, 'pubsById': kept}
+        return [p for p in pubs if not self.is_blacklisted(p)]
 
     def _load_existing_metadata(self):
         """Load existing handles and numbering from previous RDF files."""
