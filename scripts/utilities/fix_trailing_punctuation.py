@@ -4,6 +4,7 @@ Fix ONLY trailing periods/backslashes at the END of DOI URLs
 Does NOT touch the critical "10." in DOI structure
 """
 
+import os
 import requests
 import json
 import re
@@ -11,8 +12,10 @@ from Crypto.Hash import keccak
 
 COMMUNITY_URL = "https://unjournal.pubpub.org"
 PUB_SLUG = "e2pharmpricing"
-EMAIL = "daaronr@gmail.com"
-PASSWORD = "321Cont_v"
+EMAIL = os.environ["PUBPUB_EMAIL"]
+PASSWORD = os.environ["PUBPUB_PASSWORD"]
+if not EMAIL.strip() or not PASSWORD.strip():
+    raise RuntimeError("Set non-empty PUBPUB_EMAIL and PUBPUB_PASSWORD environment variables.")
 
 def login(email, password):
     k = keccak.new(digest_bits=512)
