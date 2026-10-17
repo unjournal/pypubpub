@@ -311,8 +311,9 @@ class CodaRatingsFetcher:
 
 def generate_ratings_table_for_paper(
     paper_name: str,
-    anonymous: bool = False,
-    include_journal_tiers: bool = True
+    anonymous: bool = True,
+    include_journal_tiers: bool = True,
+    signed_evaluators: Optional[List[str]] = None
 ) -> str:
     """
     Generate a markdown ratings comparison table for a paper.
@@ -322,7 +323,9 @@ def generate_ratings_table_for_paper(
 
     Args:
         paper_name: Name/title of the paper (partial match supported)
-        anonymous: If True, use "Evaluator 1", "Evaluator 2" instead of names
+        anonymous: If True (default), use "Evaluator 1", "Evaluator 2" for everyone
+        signed_evaluators: When anonymous=False, only these names are shown;
+            every other evaluator keeps a numbered label
         include_journal_tiers: If True, include journal tier predictions
 
     Returns:
@@ -350,14 +353,13 @@ def generate_ratings_table_for_paper(
     # Build ratings dict with appropriate evaluator names
     ratings_by_evaluator = {}
     for i, eval_data in enumerate(evaluations, 1):
-        if anonymous:
-            evaluator_id = f"Evaluator {i}"
+        name = eval_data['evaluator_name']
+        signed = {" ".join(n.split()).casefold() for n in (signed_evaluators or [])}
+        if not anonymous and name and " ".join(name.split()).casefold() in signed:
+            evaluator_id = name
         else:
-            evaluator_id = (
-                eval_data['evaluator_name']
-                or eval_data['evaluator_code']
-                or f"Evaluator {i}"
-            )
+            # Internal evaluator codes are pseudonyms; never publish them either
+            evaluator_id = f"Evaluator {i}"
 
         ratings = eval_data['ratings'].copy()
 

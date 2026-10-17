@@ -41,7 +41,22 @@ class PackageConfig:
     paper_name: str
     draft_mode: bool = True
     include_journal_tiers: bool = True
-    anonymous_evaluators: bool = False
+    anonymous_evaluators: bool = True
+
+
+def _norm_name(name: Optional[str]) -> str:
+    return " ".join((name or "").split()).casefold()
+
+
+def is_signed(evaluator_name: Optional[str], signed_evaluators: Optional[List[str]]) -> bool:
+    """An evaluator is named only if explicitly listed as having chosen to sign.
+
+    The Coda form's name field is filled for every evaluator, including those
+    who chose anonymity, so a non-empty name must never be read as consent.
+    """
+    if not evaluator_name or not signed_evaluators:
+        return False
+    return _norm_name(evaluator_name) in {_norm_name(n) for n in signed_evaluators}
 
 
 class CodaToPubPubCreator:
@@ -123,16 +138,19 @@ class CodaToPubPubCreator:
     def generate_ratings_table(
         self,
         paper_name: str,
-        anonymous: bool = False,
-        include_journal_tiers: bool = True
+        anonymous: bool = True,
+        include_journal_tiers: bool = True,
+        signed_evaluators: Optional[List[str]] = None
     ) -> str:
         """
         Generate markdown ratings table for a paper.
 
         Args:
             paper_name: Paper name (partial match)
-            anonymous: Use "Evaluator 1" etc instead of names
+            anonymous: Use "Evaluator 1" etc instead of names (default)
             include_journal_tiers: Include journal tier predictions
+            signed_evaluators: Names of evaluators who chose to sign; only
+                these are ever shown by name, and only when anonymous=False
 
         Returns:
             Markdown table string
@@ -140,14 +158,16 @@ class CodaToPubPubCreator:
         return generate_ratings_table_for_paper(
             paper_name,
             anonymous=anonymous,
-            include_journal_tiers=include_journal_tiers
+            include_journal_tiers=include_journal_tiers,
+            signed_evaluators=signed_evaluators
         )
 
     def generate_tables_for_papers(
         self,
         paper_names: List[str],
-        anonymous: bool = False,
-        include_journal_tiers: bool = True
+        anonymous: bool = True,
+        include_journal_tiers: bool = True,
+        signed_evaluators: Optional[List[str]] = None
     ) -> Dict[str, str]:
         """
         Generate ratings tables for multiple papers.
@@ -166,7 +186,8 @@ class CodaToPubPubCreator:
             table = self.generate_ratings_table(
                 paper,
                 anonymous=anonymous,
-                include_journal_tiers=include_journal_tiers
+                include_journal_tiers=include_journal_tiers,
+                signed_evaluators=signed_evaluators
             )
             # Get the actual paper name from Coda
             evals = self.coda_fetcher.get_evaluations_for_paper(paper)
@@ -178,7 +199,8 @@ class CodaToPubPubCreator:
         self,
         paper_name: str,
         draft_mode: bool = True,
-        evaluation_manager_id: Optional[str] = None
+        evaluation_manager_id: Optional[str] = None,
+        signed_evaluators: Optional[List[str]] = None
     ) -> Dict:
         """
         Create a complete PubPub evaluation package from Coda data.
@@ -218,21 +240,20 @@ class CodaToPubPubCreator:
             evaluator_name = eval_data['evaluator_name']
             evaluator_code = eval_data['evaluator_code']
 
-            # In draft mode, don't include names
-            if draft_mode:
-                eval_configs.append({})
+            # Names appear only in final mode AND only for evaluators
+            # explicitly listed as signed. A filled name field is not consent.
+            named = (not draft_mode) and is_signed(evaluator_name, signed_evaluators)
+            if named:
+                eval_configs.append({'author': {'name': evaluator_name}})
             else:
-                config = {}
-                if evaluator_name:
-                    config['author'] = {'name': evaluator_name}
-                eval_configs.append(config)
+                eval_configs.append({})
 
             # Build EvaluationData for content generation
             eval_data_obj = EvaluationData(
                 ratings=eval_data['ratings'],
                 review_text=eval_data.get('summary', ''),
-                evaluator_name=evaluator_name if not draft_mode else None,
-                is_public=bool(evaluator_name) and not draft_mode
+                evaluator_name=evaluator_name if named else None,
+                is_public=named
             )
             eval_data_list.append(eval_data_obj)
 
@@ -366,7 +387,8 @@ class CodaToPubPubCreator:
         self,
         paper_names: List[str],
         draft_mode: bool = True,
-        evaluation_manager_id: Optional[str] = None
+        evaluation_manager_id: Optional[str] = None,
+        signed_evaluators: Optional[List[str]] = None
     ) -> List[Dict]:
         """
         Create multiple evaluation packages.
@@ -385,7 +407,8 @@ class CodaToPubPubCreator:
                 result = self.create_package(
                     paper,
                     draft_mode=draft_mode,
-                    evaluation_manager_id=evaluation_manager_id
+                    evaluation_manager_id=evaluation_manager_id,
+                    signed_evaluators=signed_evaluators
                 )
                 results.append(result)
             except Exception as e:
@@ -457,11 +480,15 @@ def main():
     )
     parser.add_argument(
         '--final', action='store_true',
-        help='Final mode - include evaluator names'
+        help='Final mode - name ONLY the evaluators listed with --signed'
+    )
+    parser.add_argument(
+        '--signed', nargs='+', default=[], metavar='NAME',
+        help='Evaluators who chose to sign (exact names). Everyone else stays anonymous.'
     )
     parser.add_argument(
         '--anonymous', action='store_true',
-        help='Use anonymous evaluator labels in tables'
+        help='(Kept for compatibility; anonymous labels are now the default)'
     )
     parser.add_argument(
         '--no-journal-tiers', action='store_true',
@@ -504,14 +531,18 @@ def main():
 
     # Determine mode
     draft_mode = not args.final
-    anonymous = args.anonymous or draft_mode
+    signed = [] if args.anonymous else args.signed
+    anonymous = draft_mode or not signed
+    if args.final and not signed:
+        print("Final mode without --signed: all evaluators stay anonymous.")
 
     # Generate tables only
     if args.tables_only:
         tables = creator.generate_tables_for_papers(
             selected_papers,
             anonymous=anonymous,
-            include_journal_tiers=not args.no_journal_tiers
+            include_journal_tiers=not args.no_journal_tiers,
+            signed_evaluators=signed
         )
 
         output = ""
@@ -530,7 +561,8 @@ def main():
     print("\nCreating PubPub packages...")
     results = creator.create_packages_batch(
         selected_papers,
-        draft_mode=draft_mode
+        draft_mode=draft_mode,
+        signed_evaluators=signed
     )
 
     # Summary
