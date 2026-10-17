@@ -3,6 +3,7 @@
 Fix DOIs with trailing periods on e2pharmpricing page
 """
 
+import os
 import requests
 import json
 import re
@@ -13,8 +14,10 @@ COMMUNITY_ID = "d28e8e57-7f59-486b-9395-b548158a27d6"
 PUB_SLUG = "e2pharmpricing"
 
 # Credentials
-EMAIL = "daaronr@gmail.com"
-PASSWORD = "321Cont_v"
+EMAIL = os.environ["PUBPUB_EMAIL"]
+PASSWORD = os.environ["PUBPUB_PASSWORD"]
+if not EMAIL.strip() or not PASSWORD.strip():
+    raise RuntimeError("Set non-empty PUBPUB_EMAIL and PUBPUB_PASSWORD environment variables.")
 
 def login(email, password):
     """Login to PubPub"""

@@ -4,6 +4,7 @@
 from collections import namedtuple
 from dataclasses import dataclass
 from operator import __not__
+import os
 import re
 from time import sleep
 from typing import TypedDict
@@ -43,19 +44,19 @@ class UserAttributeDict(TypedDict ):
 
 
 class Pubshelper_v6:
-    def __init__(self, community_url="https://unjournal.pubpub.org", community_id="d28e8e57-7f59-486b-9395-b548158a27d6", email='contact@unjournal.org',password = 'pasw0rt' ):
+    def __init__(self, community_url="https://unjournal.pubpub.org", community_id="d28e8e57-7f59-486b-9395-b548158a27d6", email=None,password=None ):
         self.community_url = community_url
         self.community_id = community_id
         self.cookieJar = None
         self.logged_in = False
-        self.email = email
-        self.password = password
+        self.email = email if email is not None else os.environ.get("PUBPUB_EMAIL")
+        self.password = password if password is not None else os.environ.get("PUBPUB_PASSWORD")
+        if not self.email or not self.email.strip() or not self.password or not self.password.strip():
+            raise ValueError("Provide email/password or set non-empty PUBPUB_EMAIL and PUBPUB_PASSWORD.")
         self.requests = requests.Session()
 
 
     def login(self):
-        print("email ::", self.email)
-        print("password ", self.password[:2], "..XX..", self.password[-2:])
         k = keccak.new(digest_bits=512)
         k.update(self.password.encode())
         response = self.requests.post(
@@ -838,8 +839,8 @@ class Migratehelper_v6:
         cls, 
         community_url="https://unjournal.pubpub.org", 
         community_id="d28e8e57-7f59-486b-9395-b548158a27d6", 
-        email='contact@unjournal.org',
-        password = 'pasw0rt' ):
+        email=None,
+        password=None ):
         if(not pub_helper):
             pub_helper = Pubshelper_v6(community_url=community_url, community_id=community_id, email=email, password=password)
             pub_helper.login()

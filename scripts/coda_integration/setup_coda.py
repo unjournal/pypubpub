@@ -183,9 +183,9 @@ CODA_API_KEY={api_key}
 CODA_DOC_ID={doc_id}
 CODA_TABLE_ID={table_id}
 
-# PubPub Configuration (from conf.py)
-PUBPUB_EMAIL=contact@unjournal.org
-PUBPUB_PASSWORD=rap5nje8VWR!khd1cjz
+# PubPub Configuration (fill in locally if needed)
+PUBPUB_EMAIL=
+PUBPUB_PASSWORD=
 PUBPUB_COMMUNITY_ID=d28e8e57-7f59-486b-9395-b548158a27d6
 PUBPUB_COMMUNITY_URL=https://unjournal.pubpub.org
 """

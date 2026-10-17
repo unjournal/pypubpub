@@ -40,7 +40,7 @@ See the pubpub API docs: https://www.pubpub.org/apiDocs#/
 
 from sys import ps1
 class Pubshelper:
-    def __init__(self, community_url="https://unjournal.pubpub.org", community_id="d28e8e57-7f59-486b-9395-b548158a27d6", email='revwr@gmail.com',password = '8paswortt' ):
+    def __init__(self, community_url="https://unjournal.pubpub.org", community_id="d28e8e57-7f59-486b-9395-b548158a27d6", *, email, password):
         self.community_url = community_url
         self.community_id = community_id
         self.cookieJar = None

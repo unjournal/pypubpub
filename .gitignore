@@ -45,3 +45,8 @@ __pycache__/
 
 .env_do_not_share
 unjournalpubpub_production_moved/conf_contact.py
+
+# Local credential configs, including copies in nested folders
+conf.py
+conf_contact.py
+.env_do_not_share*
