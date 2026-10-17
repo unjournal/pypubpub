@@ -50,3 +50,7 @@ unjournalpubpub_production_moved/conf_contact.py
 conf.py
 conf_contact.py
 .env_do_not_share*
+
+# Never commit raw evaluation-form exports (confidential comments, pseudonym codes)
+*Responses*evaluations*.csv
+*form_responses*.csv
